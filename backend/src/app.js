@@ -1,3 +1,8 @@
+/**
+ * app.js
+ * Configures the core Express.js application, registers CORS policies,
+ * registers JSON payload parsers, and mounts API routing interfaces.
+ */
 import express from 'express';
 import cors from 'cors';
 import problemRoutes from './routes/problemRoutes.js';

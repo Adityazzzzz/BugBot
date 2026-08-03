@@ -1,3 +1,8 @@
+/**
+ * server.js
+ * Main entry point of the LMS backend server.
+ * Loads environment configurations and listens for HTTP requests.
+ */
 import app from './app.js';
 import dotenv from 'dotenv';
 
