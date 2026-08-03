@@ -88,6 +88,15 @@ A full-stack, AI-enabled LMS module built to practice coding assignments in a sa
    ```
 2. Start the dev server:
    ```bash
-   npm run dev
-   ```
+    npm run dev
+    ```
 3. Open [http://localhost:3000](http://localhost:3000) in your web browser.
+
+---
+
+## Verification Test Suite
+To verify sandbox safety, timeouts, and static keyword check capabilities:
+```bash
+node backend/src/services/sandboxTest.js
+```
+This runs Javascript and Python script tests checking loop timeouts, syntax error handling, and file system block validations.
