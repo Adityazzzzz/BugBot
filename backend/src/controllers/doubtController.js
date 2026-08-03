@@ -89,9 +89,10 @@ export async function getProblemDoubts(req, res) {
     const { problemId } = req.params;
 
     const doubts = await prisma.doubt.findMany({
-      where: { problemId },
+      where: problemId === 'all' ? {} : { problemId },
       include: {
         student: { select: { username: true } },
+        problem: { select: { title: true } },
         answers: {
           where: { status: 'APPROVED' },
           include: {
