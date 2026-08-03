@@ -1,5 +1,5 @@
 import vm from 'vm';
-import { exec } from 'child_process';
+import { execFile } from 'child_process';
 import fs from 'fs';
 import path from 'path';
 import crypto from 'crypto';
@@ -144,8 +144,8 @@ except Exception as e:
 
     const result = await new Promise((resolve) => {
       const start = performance.now();
-      // Run Python child process with 2000ms timeout
-      exec(`python "${tempFile}"`, { timeout: 2000 }, (error, stdout, stderr) => {
+      // Run Python child process directly without spawning a shell, with 2000ms timeout
+      execFile('python', [tempFile], { timeout: 2000 }, (error, stdout, stderr) => {
         const end = performance.now();
         const duration = Math.round((end - start) * 100) / 100;
         
