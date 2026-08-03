@@ -1,3 +1,7 @@
+/**
+ * userRoutes.js
+ * Routes for listing mock test accounts for student/teacher switcher options.
+ */
 import express from 'express';
 import prisma from '../config/db.js';
 

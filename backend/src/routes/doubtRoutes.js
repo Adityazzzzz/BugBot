@@ -1,3 +1,7 @@
+/**
+ * doubtRoutes.js
+ * Routes managing student doubt submissions and teacher moderation queues.
+ */
 import express from 'express';
 import { 
   postStudentDoubt, 

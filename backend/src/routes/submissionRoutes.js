@@ -1,3 +1,7 @@
+/**
+ * submissionRoutes.js
+ * Routes for executing sample code runs, grading submissions, and querying history.
+ */
 import express from 'express';
 import { 
   runSampleCode, 

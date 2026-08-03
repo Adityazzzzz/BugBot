@@ -1,3 +1,7 @@
+/**
+ * problemRoutes.js
+ * Routes for retrieving coding challenge metadata and boilerplate code.
+ */
 import express from 'express';
 import { getAllProblems, getProblemById } from '../controllers/problemController.js';
 
