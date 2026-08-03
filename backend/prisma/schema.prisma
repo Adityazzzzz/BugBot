@@ -1,0 +1,74 @@
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id              String        @id @default(uuid())
+  username        String        @unique
+  role            String        // "STUDENT" or "TEACHER"
+  createdAt       DateTime      @default(now())
+  submissions     Submission[]
+  doubts          Doubt[]
+  reviewedAnswers DoubtAnswer[]
+}
+
+model Problem {
+  id            String       @id @default(uuid())
+  title         String
+  description   String
+  difficulty    String       // "EASY", "MEDIUM", "HARD"
+  boilerplateJs String
+  boilerplatePy String
+  testCases     String       // JSON array: [{ input: string, expectedOutput: string }]
+  createdAt     DateTime     @default(now())
+  submissions   Submission[]
+  doubts        Doubt[]
+}
+
+model Submission {
+  id          String   @id @default(uuid())
+  problemId   String
+  studentId   String
+  code        String
+  language    String   // "javascript" or "python"
+  status      String   // "COMPLETED" or "FAILED"
+  score       Float    // percentage of tests passed (e.g. 100.0)
+  results     String   // JSON array: [{ passed: boolean, input: string, expected: string, got: string, error?: string }]
+  aiFeedback  String?  // Qualitative feedback text
+  createdAt   DateTime @default(now())
+  
+  problem     Problem  @relation(fields: [problemId], references: [id], onDelete: Cascade)
+  student     User     @relation(fields: [studentId], references: [id], onDelete: Cascade)
+}
+
+model Doubt {
+  id        String   @id @default(uuid())
+  problemId String
+  studentId String
+  title     String
+  content   String
+  createdAt DateTime @default(now())
+  
+  problem   Problem  @relation(fields: [problemId], references: [id], onDelete: Cascade)
+  student   User     @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  answers   DoubtAnswer[]
+}
+
+model DoubtAnswer {
+  id          String   @id @default(uuid())
+  doubtId     String
+  content     String
+  status      String   // "PENDING", "APPROVED", "REJECTED"
+  reviewerId  String?
+  reviewNotes String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  doubt       Doubt    @relation(fields: [doubtId], references: [id], onDelete: Cascade)
+  reviewer    User?    @relation(fields: [reviewerId], references: [id])
+}
