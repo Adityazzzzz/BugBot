@@ -1,5 +1,10 @@
 'use client';
 
+/**
+ * DoubtBoardHub component.
+ * Displays student questions filtered by challenge with approved mentor responses.
+ * Restricts unapproved AI replies to keep the shared board secure and clean.
+ */
 import React, { useEffect, useState } from 'react';
 import { useUser } from '../context/UserContext';
 import { HelpCircle, MessageSquareCode, Filter, ChevronRight, User, BookOpen } from 'lucide-react';

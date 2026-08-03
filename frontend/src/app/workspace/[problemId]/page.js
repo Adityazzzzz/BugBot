@@ -1,5 +1,11 @@
 'use client';
 
+/**
+ * WorkspacePage component.
+ * Integrates Monaco Editor with sandboxed run/submit routes on the backend.
+ * Features coding templates, test case console reports, qualitative AI feedback sheets,
+ * and inline doubt board postings for students.
+ */
 import React, { useEffect, useState, useRef } from 'react';
 import Editor from '@monaco-editor/react';
 import { useUser } from '../../context/UserContext';

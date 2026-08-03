@@ -1,5 +1,10 @@
 'use client';
 
+/**
+ * TeacherPortal component.
+ * Implements the teacher review queue dashboard for pending AI-drafted answers,
+ * and lists student submission history with code viewer and qualitative feedback tabs.
+ */
 import React, { useEffect, useState } from 'react';
 import { useUser } from '../context/UserContext';
 import { 
