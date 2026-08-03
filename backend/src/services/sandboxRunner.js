@@ -52,7 +52,7 @@ export function runJavaScript(code, functionName, testCases) {
     try {
       // Create context and evaluate code
       const context = vm.createContext(sandbox);
-      vm.runInContext(code, context, { timeout: 2000 });
+      vm.runInContext(code, context, { timeout: 1000 });
 
       const fn = sandbox[functionName];
       if (typeof fn !== 'function') {
@@ -67,7 +67,9 @@ export function runJavaScript(code, functionName, testCases) {
       }
 
       const start = performance.now();
-      const output = fn(...args);
+      // Run function execution under strict context timeout limit of 2000ms
+      const runScript = new vm.Script(`${functionName}(...${JSON.stringify(args)})`);
+      const output = runScript.runInContext(context, { timeout: 2000 });
       const end = performance.now();
 
       const duration = Math.round((end - start) * 100) / 100;
