@@ -138,7 +138,15 @@ input:focus, textarea:focus, select:focus {
   font-family: var(--font-sans);
   cursor: pointer;
   border: none;
-  transition: all var(--transition-normal);
+  transition: all var(--transition-fast);
+}
+
+.btn:hover {
+  transform: translateY(-1px) scale(1.02);
+}
+
+.btn:active {
+  transform: translateY(0) scale(0.98);
 }
 
 .btn-primary {
