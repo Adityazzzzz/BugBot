@@ -109,10 +109,26 @@ def add(a, b):
   }
 }
 
+async function testEdgeCases() {
+  console.log("\n=== Testing Sandbox Edge Cases ===");
+  const testCases = [{ input: "[10, 0]", expectedOutput: "null" }];
+  
+  console.log("\n1. Division by zero check...");
+  const divCode = `
+    function divide(a, b) {
+      if (b === 0) return null;
+      return a / b;
+    }
+  `;
+  const res = await runCode(divCode, 'javascript', 'divide', testCases);
+  console.log("Results:", JSON.stringify(res, null, 2));
+}
+
 async function run() {
   try {
     await testJavaScript();
     await testPython();
+    await testEdgeCases();
   } catch (e) {
     console.error("Test execution failed:", e);
   }
