@@ -1,5 +1,10 @@
 'use client';
 
+/**
+ * UserContext.js
+ * Exposes global student & teacher authentication context for local testing.
+ * Automatically retrieves default database accounts and stores selections in localStorage.
+ */
 import React, { createContext, useContext, useState, useEffect } from 'react';
 
 const UserContext = createContext();

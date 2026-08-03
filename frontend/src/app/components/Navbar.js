@@ -1,5 +1,10 @@
 'use client';
 
+/**
+ * Navbar.js
+ * Implements a sticky, glassmorphic header displaying navigation links
+ * and a client-side dropdown selector allowing users to switch mock roles.
+ */
 import React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
