@@ -1,42 +1,43 @@
-/* Modern Vanilla CSS Design System for LMS Portal */
-@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+/* Premium Developer-Themed CSS Design System */
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
 
 :root {
   --font-sans: 'Outfit', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   --font-mono: 'JetBrains Mono', monospace;
 
-  /* Theme Colors - Sleek Indigo/Purple Dark Mode */
-  --bg-dark: #0a0a0f;
-  --bg-card: rgba(22, 22, 33, 0.65);
-  --bg-card-hover: rgba(30, 30, 45, 0.8);
-  --border-color: rgba(255, 255, 255, 0.08);
-  --border-color-focus: rgba(99, 102, 241, 0.4);
+  /* Sleek modern dark mode color palette */
+  --bg-dark: #07070a;
+  --bg-card: rgba(14, 14, 23, 0.5);
+  --bg-card-hover: rgba(22, 22, 38, 0.7);
+  --border-color: rgba(255, 255, 255, 0.05);
+  --border-color-hover: rgba(99, 102, 241, 0.3);
+  --border-color-focus: rgba(99, 102, 241, 0.5);
   
   --text-primary: #f8fafc;
   --text-secondary: #94a3b8;
-  --text-muted: #64748b;
+  --text-muted: #475569;
 
   --accent-primary: #6366f1;
-  --accent-secondary: #8b5cf6;
-  --accent-gradient: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+  --accent-secondary: #a855f7;
+  --accent-gradient: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
   
   --color-success: #10b981;
-  --color-success-bg: rgba(16, 185, 129, 0.1);
+  --color-success-bg: rgba(16, 185, 129, 0.08);
   --color-warning: #f59e0b;
-  --color-warning-bg: rgba(245, 158, 11, 0.1);
-  --color-danger: #ef4444;
-  --color-danger-bg: rgba(239, 68, 68, 0.1);
+  --color-warning-bg: rgba(245, 158, 11, 0.08);
+  --color-danger: #f43f5e;
+  --color-danger-bg: rgba(244, 63, 94, 0.08);
   
-  --shadow-sm: 0 2px 8px -1px rgba(0, 0, 0, 0.3);
-  --shadow-md: 0 8px 30px -4px rgba(0, 0, 0, 0.5);
-  --shadow-glow: 0 0 20px -3px rgba(99, 102, 241, 0.3);
+  --shadow-sm: 0 2px 8px -1px rgba(0, 0, 0, 0.5);
+  --shadow-md: 0 10px 40px -6px rgba(0, 0, 0, 0.7);
+  --shadow-glow: 0 0 25px -4px rgba(99, 102, 241, 0.25);
 
-  --radius-sm: 6px;
-  --radius-md: 12px;
-  --radius-lg: 18px;
+  --radius-sm: 8px;
+  --radius-md: 14px;
+  --radius-lg: 20px;
   
-  --transition-fast: 0.15s ease;
-  --transition-normal: 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-fast: 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-normal: 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 * {
@@ -50,43 +51,88 @@ body {
   color: var(--text-primary);
   font-family: var(--font-sans);
   min-height: 100vh;
+  overflow-y: scroll;
   overflow-x: hidden;
   -webkit-font-smoothing: antialiased;
+  position: relative;
+  
+  /* Top beam light and subtle gradient lights */
+  background-image: 
+    radial-gradient(circle at 50% -20%, rgba(99, 102, 241, 0.18) 0%, transparent 55%),
+    radial-gradient(circle at 100% 100%, rgba(168, 85, 247, 0.04) 0%, transparent 35%);
+}
+
+/* Background grid mesh */
+body::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: 
+    linear-gradient(rgba(255, 255, 255, 0.012) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.012) 1px, transparent 1px);
+  background-size: 50px 50px;
+  pointer-events: none;
+  z-index: 0;
+}
+
+main {
+  position: relative;
+  z-index: 1;
 }
 
 /* Custom Scrollbars */
 ::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+  width: 10px;
+  height: 10px;
 }
 ::-webkit-scrollbar-track {
   background: var(--bg-dark);
 }
 ::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.1);
-  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 2px solid var(--bg-dark);
+  border-radius: 6px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.18);
 }
 
-/* Glassmorphism Classes */
+/* Glassmorphism Cards */
 .glass-card {
   background: var(--bg-card);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
   border: 1px solid var(--border-color);
   border-radius: var(--radius-md);
   box-shadow: var(--shadow-md);
+  position: relative;
+  overflow: hidden;
   transition: all var(--transition-normal);
 }
 
-.glass-card:hover {
-  border-color: rgba(255, 255, 255, 0.15);
-  transform: translateY(-2px);
+/* Card inner lighting reflection */
+.glass-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.04) 0%, transparent 60%);
+  pointer-events: none;
+  z-index: 1;
 }
 
-/* Headings & Typography */
+.glass-card:hover {
+  border-color: var(--border-color-hover);
+  box-shadow: var(--shadow-glow), var(--shadow-md);
+  transform: translateY(-4px);
+}
+
+/* Typography */
 h1, h2, h3, h4, h5 {
   font-weight: 600;
   letter-spacing: -0.02em;
@@ -98,46 +144,48 @@ p {
   line-height: 1.6;
 }
 
-/* Utility Animations */
+/* Animations */
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(10px); }
+  from { opacity: 0; transform: translateY(12px); }
   to { opacity: 1; transform: translateY(0); }
 }
 
 .animated-fade {
-  animation: fadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  animation: fadeIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
-/* Global Forms & Inputs */
+/* Inputs & Form Elements */
 input, textarea, select {
-  background: rgba(0, 0, 0, 0.3);
+  background: rgba(0, 0, 0, 0.4);
   border: 1px solid var(--border-color);
   color: var(--text-primary);
   font-family: var(--font-sans);
-  padding: 10px 14px;
+  padding: 12px 16px;
   border-radius: var(--radius-sm);
   outline: none;
   font-size: 0.95rem;
   transition: all var(--transition-fast);
+  backdrop-filter: blur(4px);
 }
 
 input:focus, textarea:focus, select:focus {
-  border-color: var(--accent-primary);
-  box-shadow: 0 0 0 2px var(--border-color-focus);
+  border-color: var(--border-color-focus);
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
 }
 
-/* Global Buttons */
+/* Button UI Components */
 .btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 8px;
-  padding: 10px 20px;
+  padding: 12px 24px;
   border-radius: var(--radius-sm);
   font-weight: 500;
   font-family: var(--font-sans);
   cursor: pointer;
   border: none;
+  font-size: 0.92rem;
   transition: all var(--transition-fast);
 }
 
@@ -157,61 +205,66 @@ input:focus, textarea:focus, select:focus {
 
 .btn-primary:hover {
   box-shadow: var(--shadow-glow);
-  filter: brightness(1.15);
+  filter: brightness(1.1);
 }
 
 .btn-secondary {
-  background: rgba(255, 255, 255, 0.06);
+  background: rgba(255, 255, 255, 0.04);
   border: 1px solid var(--border-color);
   color: var(--text-primary);
 }
 
 .btn-secondary:hover {
-  background: rgba(255, 255, 255, 0.1);
-  border-color: rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.15);
 }
 
 .btn-danger {
   background: var(--color-danger-bg);
   border: 1px solid var(--color-danger);
-  color: #fca5a5;
+  color: #fecdd3;
 }
 
 .btn-danger:hover {
   background: var(--color-danger);
   color: white;
+  box-shadow: 0 0 15px rgba(244, 63, 94, 0.3);
 }
 
-/* Layout helpers */
+/* Standard containers */
 .container {
   max-width: 1200px;
   margin: 0 auto;
-  padding: 0 20px;
+  padding: 0 24px;
 }
 
-/* Badges */
+/* Badges styling */
 .badge {
   display: inline-flex;
   align-items: center;
-  padding: 4px 10px;
+  padding: 4px 12px;
   border-radius: 9999px;
-  font-size: 0.75rem;
+  font-size: 0.72rem;
   font-weight: 600;
   text-transform: uppercase;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.06em;
+  border: 1px solid transparent;
 }
 
 .badge-easy {
-  background-color: rgba(16, 185, 129, 0.15);
+  background-color: var(--color-success-bg);
+  border-color: rgba(16, 185, 129, 0.2);
   color: #34d399;
 }
 
 .badge-medium {
-  background-color: rgba(245, 158, 11, 0.15);
+  background-color: var(--color-warning-bg);
+  border-color: rgba(245, 158, 11, 0.2);
   color: #fbbf24;
 }
 
 .badge-hard {
-  background-color: rgba(239, 68, 68, 0.15);
-  color: #f87171;
+  background-color: var(--color-danger-bg);
+  border-color: rgba(244, 63, 94, 0.2);
+  color: #fb7185;
 }

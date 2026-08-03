@@ -1,3 +1,7 @@
+/**
+ * doubtController.js
+ * Controller managing doubt board discussions, prompt injection checking, and moderation workflows.
+ */
 import prisma from '../config/db.js';
 import { checkPromptInjection, draftDoubtAnswer } from '../services/aiService.js';
 

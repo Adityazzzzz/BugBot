@@ -1,3 +1,8 @@
+/**
+ * sandboxRunner.js
+ * Provides secure, timed execution sandboxes for JavaScript (in-VM scripting)
+ * and Python (direct process execution). Enforces CPU/time constraints and static check filters.
+ */
 import vm from 'vm';
 import { execFile } from 'child_process';
 import fs from 'fs';

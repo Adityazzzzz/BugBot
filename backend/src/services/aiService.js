@@ -1,3 +1,9 @@
+/**
+ * aiService.js
+ * Interfaces with Google Gemini LLMs to process code grading feedback,
+ * draft student doubt resolutions, and scan for prompt injections.
+ * Features built-in mock response fallbacks when Gemini keys are missing.
+ */
 import { GoogleGenAI } from '@google/genai';
 import dotenv from 'dotenv';
 

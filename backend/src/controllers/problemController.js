@@ -1,3 +1,7 @@
+/**
+ * problemController.js
+ * Controller handling coding assignment listings and details.
+ */
 import prisma from '../config/db.js';
 
 export async function getAllProblems(req, res) {

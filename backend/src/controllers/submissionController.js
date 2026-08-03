@@ -1,3 +1,7 @@
+/**
+ * submissionController.js
+ * Controller handling sandboxed compilation runs, grading submissions, and AI reviews.
+ */
 import prisma from '../config/db.js';
 import { runCode } from '../services/sandboxRunner.js';
 import { checkPromptInjection, generateCodeFeedback } from '../services/aiService.js';
