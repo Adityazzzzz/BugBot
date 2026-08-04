@@ -1,61 +1,59 @@
 'use client';
 
-import React, { useEffect, useState, useRef } from 'react';
+import React,{useEffect,useState,useRef} from 'react';
 import Editor from '@monaco-editor/react';
-import { useUser } from '../../context/UserContext';
+import {useUser} from '../../context/UserContext';
 import { 
-  Play, Send, HelpCircle, AlertTriangle, 
-  CheckCircle, X, User, MessageSquareCode
+  Play,Send,HelpCircle,AlertTriangle,
+  CheckCircle,X,User,MessageSquareCode
 } from 'lucide-react';
 import styles from './workspace.module.css';
 
-export default function WorkspacePage({ params }) {
-  const { problemId } = params;
-  const { activeUser } = useUser();
+export default function WorkspacePage({params}){
+  const {problemId} = params;
+  const {activeUser} = useUser();
 
-  const [problem, setProblem] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const [problem,setProblem] = useState(null);
+  const [loading,setLoading] = useState(true);
+  const [error,setError] = useState(null);
 
-  const [language, setLanguage] = useState('javascript');
-  const [code, setCode] = useState('');
-  const codeCache = useRef({ javascript: '', python: '', cpp: '' });
+  const [language,setLanguage] = useState('javascript');
+  const [code,setCode] = useState('');
+  const codeCache = useRef({ javascript: '',python: '',cpp: '' });
 
-  const [leftTab, setLeftTab] = useState('desc'); 
-  const [consoleTab, setConsoleTab] = useState('results'); 
+  const [leftTab,setLeftTab] = useState('desc'); 
+  const [consoleTab,setConsoleTab] = useState('results'); 
 
-  // --- Lightning-Fast Direct DOM Resizer Ref ---
   const gridRef = useRef(null);
   const isDraggingRef = useRef(false);
 
-  useEffect(() => {
-    const handleMouseMove = (e) => {
-      if (!isDraggingRef.current || !gridRef.current) return;
+  useEffect(() =>{
+    const handleMouseMove =(e) =>{
+      if(!isDraggingRef.current || !gridRef.current) return;
       const newWidth = e.clientX;
-      if (newWidth > 320 && newWidth < window.innerWidth - 400) {
-        // Direct style mutation avoids React re-render lag completely!
+      if(newWidth > 320 && newWidth < window.innerWidth - 400){
         gridRef.current.style.gridTemplateColumns = `${newWidth}px 6px 1fr`;
       }
     };
 
-    const handleMouseUp = () => {
-      if (isDraggingRef.current) {
+    const handleMouseUp =() =>{
+      if(isDraggingRef.current){
         isDraggingRef.current = false;
         document.body.style.cursor = 'default';
         document.body.style.userSelect = 'auto';
       }
     };
 
-    window.addEventListener('mousemove', handleMouseMove);
-    window.addEventListener('mouseup', handleMouseUp);
+    window.addEventListener('mousemove',handleMouseMove);
+    window.addEventListener('mouseup',handleMouseUp);
 
-    return () => {
-      window.removeEventListener('mousemove', handleMouseMove);
-      window.removeEventListener('mouseup', handleMouseUp);
+    return() =>{
+      window.removeEventListener('mousemove',handleMouseMove);
+      window.removeEventListener('mouseup',handleMouseUp);
     };
-  }, []);
+  },[]);
 
-  const startDragging = (e) => {
+  const startDragging =(e) =>{
     e.preventDefault();
     isDraggingRef.current = true;
     document.body.style.cursor = 'col-resize';
@@ -63,30 +61,30 @@ export default function WorkspacePage({ params }) {
   };
   // ---------------------------------------------
 
-  const [isRunning, setIsRunning] = useState(false);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [consoleOutput, setConsoleOutput] = useState(null);
-  const [aiFeedback, setAiFeedback] = useState(null);
+  const [isRunning,setIsRunning] = useState(false);
+  const [isSubmitting,setIsSubmitting] = useState(false);
+  const [consoleOutput,setConsoleOutput] = useState(null);
+  const [aiFeedback,setAiFeedback] = useState(null);
 
-  const [doubts, setDoubts] = useState([]);
-  const [showDoubtModal, setShowDoubtModal] = useState(false);
-  const [newDoubtTitle, setNewDoubtTitle] = useState('');
-  const [newDoubtContent, setNewDoubtContent] = useState('');
-  const [doubtError, setDoubtError] = useState('');
-  const [isPostingDoubt, setIsPostingDoubt] = useState(false);
+  const [doubts,setDoubts] = useState([]);
+  const [showDoubtModal,setShowDoubtModal] = useState(false);
+  const [newDoubtTitle,setNewDoubtTitle] = useState('');
+  const [newDoubtContent,setNewDoubtContent] = useState('');
+  const [doubtError,setDoubtError] = useState('');
+  const [isPostingDoubt,setIsPostingDoubt] = useState(false);
 
-  const [toast, setToast] = useState(null);
+  const [toast,setToast] = useState(null);
 
-  const showToast = (message, type = 'success') => {
-    setToast({ message, type });
-    setTimeout(() => setToast(null), 4000);
+  const showToast =(message,type = 'success') =>{
+    setToast({ message,type });
+    setTimeout(() => setToast(null),4000);
   };
 
-  useEffect(() => {
-    async function fetchProblem() {
-      try {
+  useEffect(() =>{
+    async function fetchProblem(){
+      try{
         const res = await fetch(`/api/problems/${problemId}`);
-        if (!res.ok) throw new Error('Failed to load coding assignment details');
+        if(!res.ok) throw new Error('Failed to load coding assignment details');
         const data = await res.json();
         setProblem(data);
         
@@ -97,67 +95,74 @@ export default function WorkspacePage({ params }) {
         codeCache.current.cpp = defaultCpp;
         
         setCode(data.boilerplateJs);
-      } catch (err) {
+      } 
+      catch(err){
         setError(err.message);
-      } finally {
+      } 
+      finally{
         setLoading(false);
       }
     }
     fetchProblem();
     fetchProblemDoubts();
-  }, [problemId]);
+  },[problemId]);
 
-  async function fetchProblemDoubts() {
-    try {
+  async function fetchProblemDoubts(){
+    try{
       const res = await fetch(`/api/doubts/problem/${problemId}`);
-      if (res.ok) {
+      if(res.ok){
         const data = await res.json();
         setDoubts(data);
       }
-    } catch (e) {
-      console.error('Failed to fetch doubts:', e);
+    } 
+    catch(e){
+      console.error('Failed to fetch doubts:',e);
     }
   }
 
-  const handleLanguageChange = (newLang) => {
+  const handleLanguageChange =(newLang) =>{
     codeCache.current[language] = code;
     setLanguage(newLang);
+
     const cached = codeCache.current[newLang];
-    if (cached) {
+    if(cached){
       setCode(cached);
-    } else {
-      if (newLang === 'javascript') setCode(problem.boilerplateJs);
-      else if (newLang === 'python') setCode(problem.boilerplatePy);
-      else if (newLang === 'cpp') setCode(problem.boilerplateCpp || `#include <iostream>\nusing namespace std;\n\n// Write your solution here`);
+    } 
+    else{
+      if(newLang === 'javascript') setCode(problem.boilerplateJs);
+      else if(newLang === 'python') setCode(problem.boilerplatePy);
+      else if(newLang === 'cpp') setCode(problem.boilerplateCpp || `#include <iostream>\nusing namespace std;\n\n// Write your solution here`);
     }
   };
 
-  const handleRunCode = async () => {
+  const handleRunCode = async() =>{
     setIsRunning(true);
     setConsoleTab('results');
     setConsoleOutput({ running: true });
     
-    try {
-      const res = await fetch('/api/submissions/run', {
+    try{
+      const res = await fetch('/api/submissions/run',{
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ problemId, code, language })
+        headers:{ 'Content-Type': 'application/json' },
+        body: JSON.stringify({ problemId,code,language })
       });
       
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error || 'Execution failed');
+      if(!res.ok) throw new Error(data.error || 'Execution failed');
       
-      setConsoleOutput({ type: 'run', results: data.results });
-    } catch (err) {
-      setConsoleOutput({ type: 'error', message: err.message });
-    } finally {
+      setConsoleOutput({type:'run',results:data.results});
+    } 
+    catch(err){
+      setConsoleOutput({type:'error',message:err.message});
+    }
+    finally{
       setIsRunning(false);
     }
   };
 
-  const handleSubmitCode = async () => {
-    if (!activeUser) {
-      showToast('Please select a user profile in the Navbar.', 'error');
+  const handleSubmitCode = async() =>{
+    if(!activeUser){
+      showToast('Please select a user profile in the Navbar.','error');
       return;
     }
     
@@ -166,15 +171,15 @@ export default function WorkspacePage({ params }) {
     setConsoleOutput({ submitting: true });
     setAiFeedback(null);
 
-    try {
-      const res = await fetch('/api/submissions/submit', {
+    try{
+      const res = await fetch('/api/submissions/submit',{
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ problemId, studentId: activeUser.id, code, language })
+        headers:{ 'Content-Type': 'application/json' },
+        body: JSON.stringify({ problemId,studentId: activeUser.id,code,language })
       });
 
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error || 'Submission failed');
+      if(!res.ok) throw new Error(data.error || 'Submission failed');
 
       setConsoleOutput({
         type: 'submit',
@@ -183,19 +188,21 @@ export default function WorkspacePage({ params }) {
         results: data.results 
       });
 
-      if (data.aiFeedback) {
+      if(data.aiFeedback){
         setAiFeedback(data.aiFeedback);
       }
-    } catch (err) {
-      setConsoleOutput({ type: 'error', message: err.message });
-    } finally {
+    } 
+    catch(err){
+      setConsoleOutput({type:'error',message: err.message});
+    } 
+    finally{
       setIsSubmitting(false);
     }
   };
 
-  const handlePostDoubt = async (e) => {
+  const handlePostDoubt = async(e) =>{
     e.preventDefault();
-    if (!newDoubtTitle.trim() || !newDoubtContent.trim()) {
+    if(!newDoubtTitle.trim() || !newDoubtContent.trim()){
       setDoubtError('Title and description cannot be empty.');
       return;
     }
@@ -203,10 +210,10 @@ export default function WorkspacePage({ params }) {
     setDoubtError('');
     setIsPostingDoubt(true);
 
-    try {
-      const res = await fetch('/api/doubts', {
+    try{
+      const res = await fetch('/api/doubts',{
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers:{ 'Content-Type': 'application/json' },
         body: JSON.stringify({
           problemId,
           studentId: activeUser.id,
@@ -216,48 +223,47 @@ export default function WorkspacePage({ params }) {
       });
 
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error || 'Failed to submit doubt.');
+      if(!res.ok) throw new Error(data.error || 'Failed to submit doubt.');
 
       setShowDoubtModal(false);
       setNewDoubtTitle('');
       setNewDoubtContent('');
       fetchProblemDoubts();
-      showToast('Doubt posted! AI response is pending teacher moderation.', 'success');
+      showToast('Doubt posted! AI response is pending teacher moderation.','success');
     } 
-    catch (err) {
+    catch(err){
       setDoubtError(err.message);
     } 
-    finally {
+    finally{
       setIsPostingDoubt(false);
     }
   };
 
-  if (loading) {
-    return (
+  if(loading){
+    return(
       <div className={styles.consoleLoading} style={{ height: '100vh' }}>
         <div className={styles.spinner}></div>
         <p>Loading workspace environment...</p>
       </div>
     );
   }
-
-  if (error) {
-    return (
-      <div className="container" style={{ paddingTop: '100px', textAlign: 'center' }}>
+  if(error){
+    return(
+      <div className="container" style={{ paddingTop: '100px',textAlign: 'center' }}>
         <h2>Failed to initialize workspace</h2>
         <p className="txtDanger">{error}</p>
       </div>
     );
   }
 
-  return (
+  return(
     <div 
       ref={gridRef}
       className={styles.workspaceGrid} 
       style={{ gridTemplateColumns: '480px 6px 1fr' }}
     >
       
-      {/* LEFT COLUMN: Problem Description & Doubts */}
+    {/* LEFT COLUMN: Problem Description & Doubts */}
       <div className={`${styles.leftCol} glass-card`}>
         <div className={styles.tabHeaders}>
           <button 
@@ -270,31 +276,31 @@ export default function WorkspacePage({ params }) {
             className={`${styles.tabBtn} ${leftTab === 'doubts' ? styles.activeTab : ''}`}
             onClick={() => setLeftTab('doubts')}
           >
-            Doubts Board ({doubts.length})
+            Doubts Board({doubts.length})
           </button>
         </div>
 
         <div className={styles.tabContent}>
-          {leftTab === 'desc' ? (
+        {leftTab === 'desc' ?(
             <div className={styles.descriptionSection}>
               <div className={styles.descHeader}>
                 <h1>{problem.title}</h1>
                 <span className={`badge badge-${problem.difficulty.toLowerCase()}`}>
-                  {problem.difficulty}
+                {problem.difficulty}
                 </span>
               </div>
               
               <div className={styles.descText}>
-                {problem.description.split('\n').map((line, idx) => {
-                  if (line.startsWith('###')) return <h3 key={idx}>{line.replace('###', '').trim()}</h3>;
-                  if (line.startsWith('**')) return <p key={idx} className={styles.highlightLine}>{line.replace(/\*\*/g, '')}</p>;
+              {problem.description.split('\n').map((line,idx) =>{
+                  if(line.startsWith('###')) return <h3 key={idx}>{line.replace('###','').trim()}</h3>;
+                  if(line.startsWith('**')) return <p key={idx} className={styles.highlightLine}>{line.replace(/\*\*/g,'')}</p>;
                   return <p key={idx}>{line}</p>;
                 })}
               </div>
 
               <div className={styles.sampleTestSection}>
                 <h3>Public Sample Cases</h3>
-                {JSON.parse(problem.testCases).slice(0, 1).map((tc, idx) => (
+              {JSON.parse(problem.testCases).slice(0,1).map((tc,idx) =>(
                   <div key={idx} className={styles.sampleCase}>
                     <div><strong>Input:</strong> <code>{tc.input}</code></div>
                     <div><strong>Expected Output:</strong> <code>{tc.expectedOutput}</code></div>
@@ -302,11 +308,11 @@ export default function WorkspacePage({ params }) {
                 ))}
               </div>
             </div>
-          ) : (
+          ) :(
             <div className={styles.doubtsSection}>
               <div className={styles.doubtsHeader}>
                 <h2>Doubt Resolution Board</h2>
-                {activeUser?.role === 'STUDENT' && (
+              {activeUser?.role === 'STUDENT' &&(
                   <button onClick={() => setShowDoubtModal(true)} className="btn btn-primary">
                     Ask a Question
                   </button>
@@ -314,14 +320,14 @@ export default function WorkspacePage({ params }) {
               </div>
 
               <div className={styles.doubtsList}>
-                {doubts.length === 0 ? (
+              {doubts.length === 0 ?(
                   <div className={styles.emptyDoubts}>
                     <HelpCircle size={40} className={styles.emptyIcon} style={{ margin: '0 auto' }} />
                     <p>No doubts posted yet for this problem.</p>
-                    {activeUser?.role === 'STUDENT' && <p className={styles.emptySub}>Be the first to ask a question!</p>}
+                  {activeUser?.role === 'STUDENT' && <p className={styles.emptySub}>Be the first to ask a question!</p>}
                   </div>
-                ) : (
-                  doubts.map((d) => (
+                ) :(
+                  doubts.map((d) =>(
                     <div key={d.id} className={styles.doubtCard}>
                       <div className={styles.doubtAuthor}>
                         <User size={14} />
@@ -331,19 +337,19 @@ export default function WorkspacePage({ params }) {
                       <p className={styles.doubtContentText}>{d.content}</p>
 
                       <div className={styles.answersSection}>
-                        {d.answers.length === 0 ? (
+                      {d.answers.length === 0 ?(
                           <div className={styles.pendingAnswerTag}>
                             <span>AI drafted response is pending teacher approval.</span>
                           </div>
-                        ) : (
-                          d.answers.map((ans) => (
+                        ) :(
+                          d.answers.map((ans) =>(
                             <div key={ans.id} className={styles.answerCard}>
                               <div className={styles.answerHeader}>
                                 <MessageSquareCode size={14} className={styles.mentorIcon} />
-                                <strong>Mentor Response (Approved):</strong>
+                                <strong>Mentor Response(Approved):</strong>
                               </div>
                               <div className={styles.answerBody}>
-                                {ans.content.split('\n').map((line, aIdx) => (
+                              {ans.content.split('\n').map((line,aIdx) =>(
                                   <p key={aIdx}>{line}</p>
                                 ))}
                               </div>
@@ -360,14 +366,14 @@ export default function WorkspacePage({ params }) {
         </div>
       </div>
 
-      {/* DRAGGABLE RESIZER BAR */}
+    {/* DRAGGABLE RESIZER BAR */}
       <div 
         className={styles.resizerBar} 
         onMouseDown={startDragging}
         title="Drag to resize panels"
       />
 
-      {/* RIGHT COLUMN: Code Editor & Test Console */}
+    {/* RIGHT COLUMN: Code Editor & Test Console */}
       <div className={styles.rightCol}>
         <div className={`${styles.editorHeader} glass-card`}>
           <div className={styles.languageSelector}>
@@ -409,7 +415,7 @@ export default function WorkspacePage({ params }) {
               <span className="dot dot-green"></span>
             </div>
             <span className={styles.frameFileTitle}>
-              {problem.title.replace(/\s+/g, '_')}.{language === 'javascript' ? 'js' : language === 'python' ? 'py' : 'cpp'}
+            {problem.title.replace(/\s+/g,'_')}.{language === 'javascript' ? 'js' : language === 'python' ? 'py' : 'cpp'}
             </span>
           </div>
           <div className={styles.editorWrapper}>
@@ -422,10 +428,10 @@ export default function WorkspacePage({ params }) {
               options={{
                 fontSize: 14,
                 fontFamily: 'JetBrains Mono',
-                minimap: { enabled: false },
-                scrollbar: { vertical: 'visible', horizontal: 'visible' },
+                minimap:{ enabled: false },
+                scrollbar:{ vertical: 'visible',horizontal: 'visible' },
                 automaticLayout: true,
-                padding: { top: 12 }
+                padding:{ top: 12 }
               }}
             />
           </div>
@@ -439,7 +445,7 @@ export default function WorkspacePage({ params }) {
             >
               Test Outcomes
             </button>
-            {aiFeedback && (
+          {aiFeedback &&(
               <button 
                 className={`${styles.consoleBtn} ${consoleTab === 'ai' ? styles.activeConsoleTab : ''}`}
                 onClick={() => setConsoleTab('ai')}
@@ -450,21 +456,21 @@ export default function WorkspacePage({ params }) {
           </div>
 
           <div className={styles.consoleBody}>
-            {consoleTab === 'results' ? (
+          {consoleTab === 'results' ?(
               <div className={styles.resultsTabContent}>
-                {!consoleOutput ? (
+              {!consoleOutput ?(
                   <p className={styles.emptyConsole}>Your code execution logs will appear here after running tests.</p>
-                ) : consoleOutput.running ? (
+                ) : consoleOutput.running ?(
                   <div className={styles.consoleLoading}>
                     <div className={styles.spinner}></div>
                     <p>Executing sample test cases inside the sandbox...</p>
                   </div>
-                ) : consoleOutput.submitting ? (
+                ) : consoleOutput.submitting ?(
                   <div className={styles.consoleLoading}>
                     <div className={styles.spinner}></div>
-                    <p>Submitting, running full grading suite and requesting AI analysis...</p>
+                    <p>Submitting,running full grading suite and requesting AI analysis...</p>
                   </div>
-                ) : consoleOutput.type === 'error' ? (
+                ) : consoleOutput.type === 'error' ?(
                   <div className={styles.runError}>
                     <AlertTriangle size={24} style={{ flexShrink: 0 }} />
                     <div>
@@ -472,33 +478,33 @@ export default function WorkspacePage({ params }) {
                       <pre>{consoleOutput.message}</pre>
                     </div>
                   </div>
-                ) : (
+                ) :(
                   <div className={styles.outcomesWrapper}>
-                    {consoleOutput.type === 'submit' && (
+                  {consoleOutput.type === 'submit' &&(
                       <div className={`${styles.gradingHeader} ${consoleOutput.score === 100 ? styles.passedGrade : styles.failedGrade}`}>
-                        {consoleOutput.score === 100 ? <CheckCircle size={28} /> : <AlertTriangle size={28} />}
+                      {consoleOutput.score === 100 ? <CheckCircle size={28} /> : <AlertTriangle size={28} />}
                         <div>
-                          <h3>Submission Outcome: {consoleOutput.status}</h3>
-                          <p>Grading Score: {consoleOutput.score}% of cases passed</p>
+                          <h3>Submission Outcome:{consoleOutput.status}</h3>
+                          <p>Grading Score:{consoleOutput.score}% of cases passed</p>
                         </div>
                       </div>
                     )}
                     
                     <div className={styles.testList}>
-                      {consoleOutput.results.map((res, i) => (
+                    {consoleOutput.results.map((res,i) =>(
                         <div key={i} className={`${styles.testItem} ${res.passed ? styles.testPassed : styles.testFailed}`}>
                           <div className={styles.testItemHeader}>
                             <span>Test Case #{i + 1}</span>
                             <span className={res.passed ? styles.txtSuccess : styles.txtDanger}>
-                              {res.passed ? 'PASSED' : 'FAILED'}
+                            {res.passed ? 'PASSED' : 'FAILED'}
                             </span>
                           </div>
                           <div className={styles.testItemDetails}>
                             <div><strong>Input:</strong> <code>{res.input}</code></div>
                             <div><strong>Expected:</strong> <code>{res.expected}</code></div>
-                            {res.got && <div><strong>Got:</strong> <code>{res.got}</code></div>}
-                            {res.error && <div className={styles.txtDanger}><strong>Error:</strong> <pre>{res.error}</pre></div>}
-                            {res.logs && (
+                          {res.got && <div><strong>Got:</strong> <code>{res.got}</code></div>}
+                          {res.error && <div className={styles.txtDanger}><strong>Error:</strong> <pre>{res.error}</pre></div>}
+                          {res.logs &&(
                               <div className={styles.consoleLogs}>
                                 <strong>Stdout logs:</strong>
                                 <pre>{res.logs}</pre>
@@ -511,7 +517,7 @@ export default function WorkspacePage({ params }) {
                   </div>
                 )}
               </div>
-            ) : (
+            ) :(
               <div className={styles.aiTabContent}>
                 <div className={styles.aiStatsRow}>
                   <div className={styles.aiStatCard}>
@@ -531,17 +537,17 @@ export default function WorkspacePage({ params }) {
                 <div className={styles.aiFeedbackGrid}>
                   <div className={styles.feedbackSection}>
                     <h4 className={styles.txtSuccess}>Strengths</h4>
-                    <ul>{aiFeedback.strengths.map((str, idx) => <li key={idx}>{str}</li>)}</ul>
+                    <ul>{aiFeedback.strengths.map((str,idx) => <li key={idx}>{str}</li>)}</ul>
                   </div>
-                  {aiFeedback.bugs && aiFeedback.bugs.length > 0 && (
+                {aiFeedback.bugs && aiFeedback.bugs.length > 0 &&(
                     <div className={styles.feedbackSection}>
                       <h4 className={styles.txtDanger}>Bugs & Deficiencies</h4>
-                      <ul>{aiFeedback.bugs.map((bug, idx) => <li key={idx}>{bug}</li>)}</ul>
+                      <ul>{aiFeedback.bugs.map((bug,idx) => <li key={idx}>{bug}</li>)}</ul>
                     </div>
                   )}
                   <div className={styles.feedbackSection}>
                     <h4 className={styles.txtPrimary}>Recommended Improvements</h4>
-                    <ul>{aiFeedback.improvements.map((imp, idx) => <li key={idx}>{imp}</li>)}</ul>
+                    <ul>{aiFeedback.improvements.map((imp,idx) => <li key={idx}>{imp}</li>)}</ul>
                   </div>
                 </div>
               </div>
@@ -550,7 +556,7 @@ export default function WorkspacePage({ params }) {
         </div>
       </div>
 
-      {showDoubtModal && (
+    {showDoubtModal &&(
         <div className={styles.modalOverlay}>
           <div className={`${styles.modalCard} glass-card`}>
             <div className={styles.modalHeader}>
@@ -558,9 +564,9 @@ export default function WorkspacePage({ params }) {
               <button onClick={() => setShowDoubtModal(false)} className={styles.closeBtn}><X size={20} /></button>
             </div>
             <form onSubmit={handlePostDoubt} className={styles.modalForm}>
-              {doubtError && <div className={styles.modalError}>{doubtError}</div>}
+            {doubtError && <div className={styles.modalError}>{doubtError}</div>}
               <div className={styles.formGroup}>
-                <label>Question Summary (Title)</label>
+                <label>Question Summary(Title)</label>
                 <input 
                   type="text" 
                   value={newDoubtTitle}
@@ -575,14 +581,14 @@ export default function WorkspacePage({ params }) {
                   rows={5}
                   value={newDoubtContent}
                   onChange={(e) => setNewDoubtContent(e.target.value)}
-                  placeholder="Explain exactly what issues you are encountering, or details of your logic flow."
+                  placeholder="Explain exactly what issues you are encountering,or details of your logic flow."
                   required
                 ></textarea>
               </div>
               <div className={styles.modalActions}>
                 <button type="button" onClick={() => setShowDoubtModal(false)} className="btn btn-secondary" disabled={isPostingDoubt}>Cancel</button>
                 <button type="submit" className="btn btn-primary" disabled={isPostingDoubt}>
-                  {isPostingDoubt ? 'Posting Question...' : 'Post Doubt'}
+                {isPostingDoubt ? 'Posting Question...' : 'Post Doubt'}
                 </button>
               </div>
             </form>
@@ -590,7 +596,7 @@ export default function WorkspacePage({ params }) {
         </div>
       )}
 
-      {toast && (
+      {toast &&(
         <div className={`${styles.toast} toast-${toast.type}`}>
           {toast.message}
         </div>

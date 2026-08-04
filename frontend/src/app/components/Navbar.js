@@ -1,37 +1,36 @@
 'use client';
 
-import React, { useState, useRef, useEffect } from 'react';
+import React,{useState,useRef,useEffect} from 'react';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
-import { useUser } from '../context/UserContext';
-import { Code2, HelpCircle, ShieldAlert, ChevronDown, Check } from 'lucide-react';
+import {usePathname} from 'next/navigation';
+import {useUser} from '../context/UserContext';
+import {Code2,HelpCircle,ShieldAlert,ChevronDown,Check} from 'lucide-react';
 import styles from './Navbar.module.css';
 
-export default function Navbar() {
-  const { users, activeUser, switchUser, loading } = useUser();
+export default function Navbar(){
+  const {users,activeUser,switchUser,loading} = useUser();
   const pathname = usePathname();
-  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [dropdownOpen,setDropdownOpen] = useState(false);
   const dropdownRef = useRef(null);
 
-  const isLinkActive = (path) => {
+  const isLinkActive = (path) =>{
     return pathname === path ? styles.active : '';
   };
 
-  // Close dropdown on click outside
-  useEffect(() => {
-    function handleClickOutside(event) {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+  useEffect(() =>{
+    function handleClickOutside(event){
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)){
         setDropdownOpen(false);
       }
     }
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, []);
+    document.addEventListener('mousedown',handleClickOutside);
+    return () => document.removeEventListener('mousedown',handleClickOutside);
+  },[]);
 
   return (
     <nav className={styles.navbar}>
       <div className={styles.navContainer}>
-        {/* Sleek Modern Logo */}
+      {/* Sleek Modern Logo */}
         <Link href="/" className={styles.brand}>
           <img src="/logo.jpg" alt="BugBot Logo" className={styles.brandLogoImg} />
           <div className={styles.brandText}>
@@ -40,7 +39,7 @@ export default function Navbar() {
           </div>
         </Link>
 
-        {/* Navigation Items */}
+      {/* Navigation Items */}
         <ul className={styles.navLinks}>
           <li>
             <Link href="/" className={isLinkActive('/')}>
@@ -54,7 +53,7 @@ export default function Navbar() {
               Doubt Board
             </Link>
           </li>
-          {activeUser?.role === 'TEACHER' && (
+        {activeUser?.role === 'TEACHER' && (
             <li>
               <Link href="/teacher" className={isLinkActive('/teacher')}>
                 <ShieldAlert size={16} />
@@ -64,9 +63,9 @@ export default function Navbar() {
           )}
         </ul>
 
-        {/* Custom Profile Switcher Dropdown */}
+      {/* Custom Profile Switcher Dropdown */}
         <div className={styles.userSection} ref={dropdownRef}>
-          {loading ? (
+        {loading ? (
             <span className={styles.loader}></span>
           ) : (
             <div className={styles.profileTriggerWrapper}>
@@ -75,28 +74,28 @@ export default function Navbar() {
                 className={styles.profileCardBtn}
               >
                 <div className={`${styles.avatar} ${activeUser?.role === 'TEACHER' ? styles.avatarTeacher : styles.avatarStudent}`}>
-                  {activeUser?.role === 'STUDENT' ? 'AS' : 'SA'}
+                {activeUser?.role === 'STUDENT' ? 'AS' : 'SA'}
                 </div>
                 
                 <div className={styles.profileMeta}>
                   <span className={styles.profileName}>
-                    {activeUser?.role === 'STUDENT' ? 'Aditya Singh' : 'Sarah (Instructor)'}
+                  {activeUser?.role === 'STUDENT' ? 'Aditya Singh' : 'Sarah (Instructor)'}
                   </span>
                   <span className={styles.profileRole}>
-                    {activeUser?.role === 'STUDENT' ? 'ID: 23U03031' : 'Moderator'}
+                  {activeUser?.role === 'STUDENT' ? 'ID: 23U03031' : 'Moderator'}
                   </span>
                 </div>
                 <ChevronDown size={14} className={`${styles.chevron} ${dropdownOpen ? styles.chevronUp : ''}`} />
               </button>
 
-              {/* Dropdown Card */}
-              {dropdownOpen && (
+            {/* Dropdown Card */}
+            {dropdownOpen && (
                 <div className={styles.dropdownCard}>
                   <div className={styles.dropdownHeader}>
                     <span>Switch Active Profile</span>
                   </div>
                   <ul className={styles.userList}>
-                    {users.map((u) => {
+                  {users.map((u) =>{
                       const isSelected = activeUser?.id === u.id;
                       
                       const displayName = u.role === 'STUDENT' ? 'Aditya Singh' : 'Sarah (Instructor)';
@@ -107,19 +106,19 @@ export default function Navbar() {
                         <li key={u.id}>
                           <button 
                             className={`${styles.userOptionBtn} ${isSelected ? styles.userSelected : ''}`}
-                            onClick={() => {
+                            onClick={() =>{
                               switchUser(u.id);
                               setDropdownOpen(false);
                             }}
                           >
                             <div className={`${styles.avatar} ${u.role === 'TEACHER' ? styles.avatarTeacher : styles.avatarStudent}`}>
-                              {displayInitials}
+                            {displayInitials}
                             </div>
                             <div className={styles.optionMeta}>
                               <span className={styles.optionName}>{displayName}</span>
                               <span className={styles.optionRole}>{displayRole}</span>
                             </div>
-                            {isSelected && <Check size={14} className={styles.checkIcon} />}
+                          {isSelected && <Check size={14} className={styles.checkIcon} />}
                           </button>
                         </li>
                       );

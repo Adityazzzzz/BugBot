@@ -1,5 +1,5 @@
 import './globals.css';
-import { UserProvider } from './context/UserContext';
+import {UserProvider} from './context/UserContext';
 import Navbar from './components/Navbar';
 
 export const metadata = {
@@ -10,13 +10,13 @@ export const metadata = {
   },
 };
 
-export default function RootLayout({ children }) {
+export default function RootLayout({children}){
   return (
     <html lang="en">
       <body>
         <UserProvider>
           <Navbar />
-          <main style={{ padding: '40px 0' }}>
+          <main style={{padding:'40px 0'}}>
             {children}
           </main>
         </UserProvider>

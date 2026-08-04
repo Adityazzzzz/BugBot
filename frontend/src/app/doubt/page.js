@@ -1,57 +1,59 @@
 'use client';
-
-import React, { useEffect, useState } from 'react';
-import { useUser } from '../context/UserContext';
-import { HelpCircle, MessageSquareCode, Filter, ChevronRight, User, BookOpen } from 'lucide-react';
+import React,{useEffect,useState} from 'react';
+import {useUser} from '../context/UserContext';
+import {HelpCircle,MessageSquareCode,Filter,ChevronRight,User,BookOpen} from 'lucide-react';
 import styles from './doubt.module.css';
 
-export default function DoubtBoardHub() {
-  const { activeUser } = useUser();
-  const [problems, setProblems] = useState([]);
-  const [selectedProblemId, setSelectedProblemId] = useState('all');
-  const [doubts, setDoubts] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [expandedDoubtId, setExpandedDoubtId] = useState(null);
+export default function DoubtBoardHub(){
+  const {activeUser} = useUser();
+  const [problems,setProblems] = useState([]);
+  const [selectedProblemId,setSelectedProblemId] = useState('all');
+  const [doubts,setDoubts] = useState([]);
+  const [loading,setLoading] = useState(true);
+  const [expandedDoubtId,setExpandedDoubtId] = useState(null);
 
-  useEffect(() => {
-    async function initBoard() {
-      try {
+  useEffect(() =>{
+    async function initBoard(){
+      try{
         const pRes = await fetch('/api/problems');
-        if (pRes.ok) {
+        if(pRes.ok){
           const pData = await pRes.json();
           setProblems(pData);
         }
-      } catch (e) {
-        console.error('Failed to initialize board filter:', e);
+      }
+      catch(e){
+        console.error('Failed to initialize board filter:',e);
       }
     }
     initBoard();
-  }, []);
+  },[]);
 
-  useEffect(() => {
-    async function loadDoubts() {
+  useEffect(()=>{
+    async function loadDoubts(){
       setLoading(true);
-      try {
+      try{
         const res = await fetch(`/api/doubts/problem/${selectedProblemId}`);
-        if (res.ok) {
+        if(res.ok){
           const data = await res.json();
           setDoubts(data);
         }
-      } catch (err) {
-        console.error('Failed to load doubts:', err);
-      } finally {
+      } 
+      catch(err){
+        console.error('Failed to load doubts:',err);
+      } 
+      finally{
         setLoading(false);
       }
     }
     
     loadDoubts();
-  }, [selectedProblemId]);
+  },[selectedProblemId]);
 
-  const toggleExpandDoubt = (id) => {
+  const toggleExpandDoubt =(id) =>{
     setExpandedDoubtId(expandedDoubtId === id ? null : id);
   };
 
-  return (
+  return(
     <div className={`${styles.boardContainer} container animated-fade`}>
       <header className={styles.boardHeader}>
         <div>
@@ -68,29 +70,29 @@ export default function DoubtBoardHub() {
             className={styles.filterSelect}
           >
             <option value="all">All Assignments</option>
-            {problems.map((p) => (
+            {problems.map((p) =>(
               <option key={p.id} value={p.id}>{p.title}</option>
             ))}
           </select>
         </div>
       </header>
 
-      {loading ? (
+    {loading ?(
         <div className={styles.loadingWrapper}>
           <div className={styles.spinner}></div>
           <p>Retrieving discussion threads...</p>
         </div>
-      ) : doubts.length === 0 ? (
+      ) : doubts.length === 0 ?(
         <div className={`${styles.emptyBoard} glass-card`}>
           <HelpCircle size={48} className={styles.emptyIcon} />
           <h3>No approved doubts found</h3>
-          <p>There are no doubts posted for this selection, or they are waiting for teacher moderation.</p>
+          <p>There are no doubts posted for this selection,or they are waiting for teacher moderation.</p>
         </div>
       ) : (
         <div className={styles.threadsList}>
-          {doubts.map((d) => {
+        {doubts.map((d) =>{
             const isExpanded = expandedDoubtId === d.id;
-            return (
+            return(
               <div 
                 key={d.id} 
                 className={`${styles.threadCard} glass-card ${isExpanded ? styles.expandedCard : ''}`}
@@ -100,21 +102,21 @@ export default function DoubtBoardHub() {
                   <div className={styles.threadMeta}>
                     <span className={styles.authorTag}>
                       <User size={12} />
-                      {d.student.username}
+                    {d.student.username}
                     </span>
                     <span className={styles.problemTag}>
                       <BookOpen size={12} />
-                      {d.problem?.title || 'Coding Assignment'}
+                    {d.problem?.title || 'Coding Assignment'}
                     </span>
                   </div>
                   <h3 className={styles.threadTitle}>{d.title}</h3>
                   <p className={styles.threadExcerpt}>
-                    {isExpanded ? d.content : d.content.substring(0, 140) + (d.content.length > 140 ? '...' : '')}
+                  {isExpanded ? d.content : d.content.substring(0,140) +(d.content.length > 140 ? '...' : '')}
                   </p>
                   
                   <div className={styles.threadFooter}>
                     <span className={styles.answersCount}>
-                      {d.answers.length} Approved Answer(s)
+                    {d.answers.length} Approved Answer(s)
                     </span>
                     <ChevronRight 
                       size={18} 
@@ -123,22 +125,22 @@ export default function DoubtBoardHub() {
                   </div>
                 </div>
 
-                {isExpanded && (
+              {isExpanded &&(
                   <div className={styles.expandedContent} onClick={(e) => e.stopPropagation()}>
                     <div className={styles.answersContainer}>
-                      {d.answers.length === 0 ? (
+                    {d.answers.length === 0 ?(
                         <div className={styles.pendingBanner}>
                           <p>AI response has been drafted and is currently pending instructor review.</p>
                         </div>
-                      ) : (
-                        d.answers.map((ans) => (
+                      ) :(
+                        d.answers.map((ans) =>(
                           <div key={ans.id} className={styles.replyCard}>
                             <div className={styles.replyHeader}>
                               <MessageSquareCode size={16} className={styles.mentorIcon} />
-                              <strong>Mentor Response (Approved)</strong>
+                              <strong>Mentor Response(Approved)</strong>
                             </div>
                             <div className={styles.replyBody}>
-                              {ans.content.split('\n').map((line, idx) => (
+                            {ans.content.split('\n').map((line,idx) =>(
                                 <p key={idx}>{line}</p>
                               ))}
                             </div>

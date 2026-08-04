@@ -1,52 +1,54 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
-import { useUser } from '../context/UserContext';
-import { CheckCircle, XCircle, Clock, ShieldAlert, Edit3 } from 'lucide-react';
+import React,{useEffect,useState} from 'react';
+import {useUser } from '../context/UserContext';
+import {CheckCircle,XCircle,Clock,ShieldAlert,Edit3} from 'lucide-react';
 import styles from './teacher.module.css';
 
-export default function TeacherPortal() {
-  const { activeUser } = useUser();
-  const [pendingDrafts, setPendingDrafts] = useState([]);
-  const [submissions, setSubmissions] = useState([]);
-  const [loading, setLoading] = useState(true);
+export default function TeacherPortal(){
+  const {activeUser} = useUser();
+  const [pendingDrafts,setPendingDrafts] = useState([]);
+  const [submissions,setSubmissions] = useState([]);
+  const [loading,setLoading] = useState(true);
 
   // Editing state
-  const [editingId, setEditingId] = useState(null);
-  const [editContent, setEditContent] = useState('');
-  const [toast, setToast] = useState(null);
+  const [editingId,setEditingId] = useState(null);
+  const [editContent,setEditContent] = useState('');
+  const [toast,setToast] = useState(null);
 
-  const showToast = (message, type = 'success') => {
-    setToast({ message, type });
-    setTimeout(() => setToast(null), 3000);
+  const showToast =(message,type = 'success')=>{
+    setToast({message,type});
+    setTimeout(() => setToast(null),3000);
   };
 
-  useEffect(() => {
+  useEffect(()=>{
     fetchDashboardData();
-  }, []);
+  },[]);
 
-  async function fetchDashboardData() {
+  async function fetchDashboardData(){
     setLoading(true);
-    try {
-      const [draftsRes, subsRes] = await Promise.all([
+    try{
+      const [draftsRes,subsRes] = await Promise.all([
         fetch('/api/doubts/pending'),
         fetch('/api/submissions')
       ]);
 
-      if (draftsRes.ok) setPendingDrafts(await draftsRes.json());
-      if (subsRes.ok) setSubmissions(await subsRes.json());
-    } catch (err) {
-      console.error('Failed to load teacher dashboard data:', err);
-    } finally {
+      if(draftsRes.ok) setPendingDrafts(await draftsRes.json());
+      if(subsRes.ok) setSubmissions(await subsRes.json());
+    } 
+    catch(err){
+      console.error('Failed to load teacher dashboard data:',err);
+    }
+    finally{
       setLoading(false);
     }
   }
 
-  const handleReview = async (answerId, status, content = null) => {
-    try {
-      const res = await fetch(`/api/doubts/review/${answerId}`, {
+  const handleReview = async(answerId,status,content = null)=>{
+    try{
+      const res = await fetch(`/api/doubts/review/${answerId}`,{
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
+        headers:{ 'Content-Type': 'application/json' },
         body: JSON.stringify({
           status,
           reviewerId: activeUser.id,
@@ -54,22 +56,22 @@ export default function TeacherPortal() {
         })
       });
 
-      if (!res.ok) throw new Error('Failed to submit review');
+      if(!res.ok) throw new Error('Failed to submit review');
       
       setPendingDrafts(prev => prev.filter(draft => draft.id !== answerId));
       setEditingId(null);
       
       showToast(`Draft successfully ${status.toLowerCase()}.`);
     } 
-    catch (err) {
-      showToast(err.message, 'error');
+    catch(err){
+      showToast(err.message,'error');
     }
   };
 
-  if (activeUser?.role !== 'TEACHER') {
-    return (
-      <div className="container" style={{ paddingTop: '100px', textAlign: 'center' }}>
-        <ShieldAlert size={48} style={{ margin: '0 auto 20px', color: 'var(--color-danger)' }} />
+  if(activeUser?.role !== 'TEACHER'){
+    return(
+      <div className="container" style={{ paddingTop: '100px',textAlign: 'center' }}>
+        <ShieldAlert size={48} style={{ margin: '0 auto 20px',color: 'var(--color-danger)' }} />
         <h2>Access Denied</h2>
         <p className="txtDanger">You must be logged in as an Instructor to view this page.</p>
       </div>
@@ -81,7 +83,7 @@ export default function TeacherPortal() {
     ? Math.round((submissions.filter(s => s.score === 100).length / submissions.length) * 100) 
     : 0;
 
-  return (
+  return(
     <div className={`${styles.dashboard} container animated-fade`}>
       <header className={styles.header}>
         <div>
@@ -112,17 +114,17 @@ export default function TeacherPortal() {
           </div>
           
           <div className={styles.queueBody}>
-            {loading ? (
+          {loading ?(
               <p className={styles.emptyMsg}>Loading queue...</p>
-            ) : pendingDrafts.length === 0 ? (
+            ) : pendingDrafts.length === 0 ?(
               <p className={styles.emptyMsg}>The moderation queue is currently empty. All AI drafts have been reviewed.</p>
-            ) : (
-              pendingDrafts.map(draft => (
+            ) :(
+              pendingDrafts.map(draft =>(
                 <div key={draft.id} className={styles.draftCard}>
                   <div className={styles.draftContext}>
                     <div className={styles.contextHeader}>
                       <span className="badge badge-medium">{draft.doubt.problem.title}</span>
-                      <span className={styles.studentName}>Question from: {draft.doubt.student.username}</span>
+                      <span className={styles.studentName}>Question from:{draft.doubt.student.username}</span>
                     </div>
                     <h4 className={styles.doubtTitle}>{draft.doubt.title}</h4>
                     <p className={styles.doubtContent}>{draft.doubt.content}</p>
@@ -131,9 +133,9 @@ export default function TeacherPortal() {
                   <div className={styles.aiResponse}>
                     <div className={styles.aiHeader}>
                       <strong>AI Drafted Response:</strong>
-                      {editingId !== draft.id && (
+                    {editingId !== draft.id &&(
                         <button 
-                          onClick={() => { setEditingId(draft.id); setEditContent(draft.content); }}
+                          onClick={() =>{ setEditingId(draft.id); setEditContent(draft.content); }}
                           className={styles.editBtn}
                         >
                           <Edit3 size={14} /> Edit Draft
@@ -141,34 +143,34 @@ export default function TeacherPortal() {
                       )}
                     </div>
                     
-                    {editingId === draft.id ? (
+                  {editingId === draft.id ?(
                       <textarea 
                         className={styles.editArea} 
                         value={editContent} 
                         onChange={(e) => setEditContent(e.target.value)}
                         rows={6}
                       />
-                    ) : (
+                    ) :(
                       <div className={styles.aiText}>
-                        {draft.content.split('\n').map((line, idx) => <p key={idx}>{line}</p>)}
+                      {draft.content.split('\n').map((line,idx) => <p key={idx}>{line}</p>)}
                       </div>
                     )}
                   </div>
 
                   <div className={styles.draftActions}>
-                    {editingId === draft.id ? (
+                  {editingId === draft.id ?(
                       <>
                         <button onClick={() => setEditingId(null)} className="btn btn-secondary">Cancel</button>
-                        <button onClick={() => handleReview(draft.id, 'APPROVED', editContent)} className="btn btn-primary">
+                        <button onClick={() => handleReview(draft.id,'APPROVED',editContent)} className="btn btn-primary">
                           Save & Approve
                         </button>
                       </>
-                    ) : (
+                    ) :(
                       <>
-                        <button onClick={() => handleReview(draft.id, 'REJECTED')} className="btn btn-secondary txtDanger" style={{ borderColor: 'var(--color-danger)' }}>
+                        <button onClick={() => handleReview(draft.id,'REJECTED')} className="btn btn-secondary txtDanger" style={{ borderColor: 'var(--color-danger)' }}>
                           <XCircle size={16} /> Reject & Discard
                         </button>
-                        <button onClick={() => handleReview(draft.id, 'APPROVED')} className="btn btn-primary">
+                        <button onClick={() => handleReview(draft.id,'APPROVED')} className="btn btn-primary">
                           <CheckCircle size={16} /> Approve & Publish
                         </button>
                       </>
@@ -181,10 +183,10 @@ export default function TeacherPortal() {
         </div>
       </div>
 
-      {/* Toast Notifications */}
-      {toast && (
+    {/* Toast Notifications */}
+    {toast &&(
         <div className={`${styles.toast} toast-${toast.type}`}>
-          {toast.message}
+        {toast.message}
         </div>
       )}
     </div>

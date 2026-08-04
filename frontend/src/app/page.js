@@ -1,34 +1,34 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React,{useEffect,useState} from 'react';
 import Link from 'next/link';
 import {
-  ArrowRight, Terminal, Activity, Shield, CheckCircle2, Award, Search, Sparkles
+  ArrowRight,Terminal,Activity,Shield,CheckCircle2,Award,Search,Sparkles
 } from 'lucide-react';
-import { useUser } from './context/UserContext';
+import {useUser} from './context/UserContext';
 import styles from './page.module.css';
 
-export default function HomePage() {
-  const { activeUser } = useUser();
-  const [problems, setProblems] = useState([]);
-  const [submissions, setSubmissions] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+export default function HomePage(){
+  const {activeUser} = useUser();
+  const [problems,setProblems] = useState([]);
+  const [submissions,setSubmissions] = useState([]);
+  const [loading,setLoading] = useState(true);
+  const [error,setError] = useState(null);
 
   // Search and Filter States
-  const [searchQuery, setSearchQuery] = useState('');
-  const [selectedDifficulty, setSelectedDifficulty] = useState('ALL');
+  const [searchQuery,setSearchQuery] = useState('');
+  const [selectedDifficulty,setSelectedDifficulty] = useState('ALL');
 
-  useEffect(() => {
-    async function fetchData() {
-      try {
+  useEffect(() =>{
+    async function fetchData(){
+      try{
         const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
-        const [probRes, subRes] = await Promise.all([
+        const [probRes,subRes] = await Promise.all([
           fetch(`${API_URL}/problems`),
           fetch(`${API_URL}/submissions`)
         ]);
         
-        if (!probRes.ok || !subRes.ok) {
+        if(!probRes.ok || !subRes.ok){
           throw new Error('Server responded with an error');
         }
         
@@ -37,14 +37,16 @@ export default function HomePage() {
         
         setProblems(probData);
         setSubmissions(subData);
-      } catch (err) {
+      } 
+      catch(err){
         setError(err.message);
-      } finally {
+      } 
+      finally{
         setLoading(false);
       }
     }
     fetchData();
-  }, []);
+  },[]);
 
   // Compute live statistics for active user
   const userSubmissions = submissions.filter(s => s.userId === activeUser?.id);
@@ -54,19 +56,19 @@ export default function HomePage() {
   const completionPercentage = Math.round((solvedCount / totalProblems) * 100);
 
   // Filter problems
-  const filteredProblems = problems.filter(prob => {
+  const filteredProblems = problems.filter(prob =>{
     const matchesSearch = prob.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
                           prob.description.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesDiff = selectedDifficulty === 'ALL' || prob.difficulty === selectedDifficulty;
     return matchesSearch && matchesDiff;
   });
 
-  return (
+  return(
     <div className={`${styles.dashboardContainer} container animated-fade`}>
-      {/* LEFT COLUMN: Main Problem Matrix */}
+    {/* LEFT COLUMN: Main Problem Matrix */}
       <div className={styles.mainContent}>
         
-        {/* Header & Command Bar */}
+      {/* Header & Command Bar */}
         <div className={styles.matrixHeader}>
           <div>
             <div className={styles.topBadge}>
@@ -74,9 +76,9 @@ export default function HomePage() {
             </div>
             <h1>Coding Challenges</h1>
             <p className="txtSecondary">
-              Explore {problems.length > 0 ? `${problems.length} active modules` : '3,600+ problems'}. Select a challenge to run sandboxed code or test AI feedback.
+              Explore{problems.length > 0 ? `${problems.length} active modules` : '3,600+ problems'}. Select a challenge to run sandboxed code or test AI feedback.
             </p>
-            <span>Can be extended till (3,600+ Problems)</span>
+            <span>Can be extended till(3,600+ Problems)</span>
           </div>
 
           <div className={styles.commandBar}>
@@ -92,55 +94,55 @@ export default function HomePage() {
           </div>
         </div>
 
-        {/* Filter Navigation Tabs */}
+      {/* Filter Navigation Tabs */}
         <div className={styles.filterTabs}>
-          {['ALL', 'EASY', 'MEDIUM', 'HARD'].map((diff) => (
+        {['ALL','EASY','MEDIUM','HARD'].map((diff) =>(
             <button
               key={diff}
               onClick={() => setSelectedDifficulty(diff)}
               className={`${styles.tabBtn} ${selectedDifficulty === diff ? styles.activeTab : ''}`}
             >
-              {diff === 'ALL' ? `All Challenges (${problems.length})` : diff.charAt(0) + diff.slice(1).toLowerCase()}
+            {diff === 'ALL' ? `All Challenges(${problems.length})` : diff.charAt(0) + diff.slice(1).toLowerCase()}
             </button>
           ))}
         </div>
 
-        {/* Problems Grid Container */}
-        {loading ? (
+      {/* Problems Grid Container */}
+      {loading ?(
           <div className={styles.loaderWrapper}>
             <div className={styles.spinner}></div>
             <p>Loading repository...</p>
           </div>
-        ) : error ? (
+        ) : error ?(
           <div className={styles.errorCard}>
             <p className={styles.errorMsg}>Backend Offline</p>
             <p className={styles.errorHint}>Ensure Express is running on port 5000: <code>npm run dev</code></p>
           </div>
-        ) : filteredProblems.length === 0 ? (
+        ) : filteredProblems.length === 0 ?(
           <div className={styles.emptyState}>
             <p>No challenges match your criteria.</p>
           </div>
-        ) : (
+        ) :(
           <div className={styles.cardScrollContainer}>
             <div className={styles.problemsGrid}>
-              {filteredProblems.map((prob) => {
+            {filteredProblems.map((prob) =>{
                 const isSolved = solvedProblemIds.has(prob.id);
                 let tcCount = 3;
-                try {
+                try{
                   tcCount = prob.testCases ? JSON.parse(prob.testCases).length : 3;
-                } catch (e) {}
+                } catch(e){}
 
-                return (
+                return(
                   <Link href={`/workspace/${prob.id}`} key={prob.id} className={`${styles.problemCard} glass-card`}>
                     <div className={styles.cardTopRow}>
                       <span className={`badge badge-${prob.difficulty.toLowerCase()}`}>
-                        {prob.difficulty}
+                      {prob.difficulty}
                       </span>
-                      {isSolved ? (
+                    {isSolved ?(
                         <span className={styles.solvedBadge}>
                           <CheckCircle2 size={14} className="txtSuccess" /> Solved
                         </span>
-                      ) : (
+                      ) :(
                         <span className={styles.testCount}>{tcCount} test cases</span>
                       )}
                     </div>
@@ -148,7 +150,7 @@ export default function HomePage() {
                     <div className={styles.cardBodyContent}>
                       <h3 className={styles.cardTitle}>{prob.title}</h3>
                       <p className={styles.cardDesc}>
-                        {prob.description.split('\n')[0].replace(/[`*]/g, '')}
+                      {prob.description.split('\n')[0].replace(/[`*]/g,'')}
                       </p>
                     </div>
 
@@ -171,7 +173,7 @@ export default function HomePage() {
         )}
       </div>
 
-      {/* RIGHT COLUMN: Dynamic Live Sidebar */}
+    {/* RIGHT COLUMN: Dynamic Live Sidebar */}
       <aside className={styles.sidebar}>
         <div className={`${styles.sidebarWidget} glass-card`}>
           <div className={styles.widgetHeader}>
@@ -189,7 +191,7 @@ export default function HomePage() {
             </div>
             <div className={styles.metricItem}>
               <span>Solved</span>
-              <span className={styles.metricValSuccess}>{solvedCount} / {problems.length}</span>
+              <span className={styles.metricValSuccess}>{solvedCount} /{problems.length}</span>
             </div>
             <div className={styles.metricItem}>
               <span>Completion</span>
@@ -204,12 +206,12 @@ export default function HomePage() {
             <h3>Live Activity Stream</h3>
           </div>
           <div className={styles.activityList}>
-            {submissions.slice(0, 5).map((sub) => {
+          {submissions.slice(0,5).map((sub) =>{
               const username = sub.user?.username || 'student';
               const problemTitle = sub.problem?.title || 'Challenge';
               const passed = sub.score === 100;
 
-              return (
+              return(
                 <div key={sub.id} className={styles.activityItem}>
                   <div className={styles.activityIndicator}>
                     <span className={`${styles.statusDot} ${passed ? styles.dotPassed : styles.dotFailed}`}></span>
@@ -220,17 +222,17 @@ export default function HomePage() {
                       <span className={styles.activityTarget}>{problemTitle}</span>
                     </p>
                     <div className={styles.activityMeta}>
-                      <span>{new Date(sub.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                      <span>{new Date(sub.createdAt).toLocaleTimeString([],{ hour: '2-digit',minute: '2-digit' })}</span>
                       <span className={passed ? styles.txtSuccess : styles.txtDanger}>
-                        ({sub.score}%)
+                      ({sub.score}%)
                       </span>
                     </div>
                   </div>
                 </div>
               );
             })}
-            {submissions.length === 0 && (
-              <p className="txtSecondary" style={{ fontSize: '0.85rem', textAlign: 'center', padding: '12px 0' }}>
+          {submissions.length === 0 &&(
+              <p className="txtSecondary" style={{ fontSize: '0.85rem',textAlign: 'center',padding: '12px 0' }}>
                 No submissions recorded yet.
               </p>
             )}
