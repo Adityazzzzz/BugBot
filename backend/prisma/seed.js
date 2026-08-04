@@ -7,25 +7,25 @@ async function main() {
 
   // Create default Student and Teacher users for testing
   const student = await prisma.user.upsert({
-    where: { username: 'aditya' },
+    where: { username: 'Aditya Singh' },
     update: {},
     create: {
-      username: 'aditya',
+      username: 'Aditya Singh',
       role: 'STUDENT',
     },
   });
 
   const teacher = await prisma.user.upsert({
-    where: { username: 'sarah_teacher' },
+    where: { username: 'Dr. Kamal Das' },
     update: {},
     create: {
-      username: 'sarah_teacher',
+      username: 'Dr. Kamal Das',
       role: 'TEACHER',
     },
   });
 
   console.log(`Created users: student(${student.username}), teacher(${teacher.username})`);
-
+  
   // Problem 1: Two Sum
   await prisma.problem.upsert({
     where: { id: 'problem-two-sum' },
