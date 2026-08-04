@@ -5,7 +5,7 @@ import Editor from '@monaco-editor/react';
 import { useUser } from '../../context/UserContext';
 import { 
   Play, Send, HelpCircle, AlertTriangle, 
-  CheckCircle, X, User, MessageSquareCode, Info
+  CheckCircle, X, User, MessageSquareCode
 } from 'lucide-react';
 import styles from './workspace.module.css';
 
@@ -19,10 +19,49 @@ export default function WorkspacePage({ params }) {
 
   const [language, setLanguage] = useState('javascript');
   const [code, setCode] = useState('');
-  const codeCache = useRef({ javascript: '', python: '' });
+  const codeCache = useRef({ javascript: '', python: '', cpp: '' });
 
   const [leftTab, setLeftTab] = useState('desc'); 
   const [consoleTab, setConsoleTab] = useState('results'); 
+
+  // --- Lightning-Fast Direct DOM Resizer Ref ---
+  const gridRef = useRef(null);
+  const isDraggingRef = useRef(false);
+
+  useEffect(() => {
+    const handleMouseMove = (e) => {
+      if (!isDraggingRef.current || !gridRef.current) return;
+      const newWidth = e.clientX;
+      if (newWidth > 320 && newWidth < window.innerWidth - 400) {
+        // Direct style mutation avoids React re-render lag completely!
+        gridRef.current.style.gridTemplateColumns = `${newWidth}px 6px 1fr`;
+      }
+    };
+
+    const handleMouseUp = () => {
+      if (isDraggingRef.current) {
+        isDraggingRef.current = false;
+        document.body.style.cursor = 'default';
+        document.body.style.userSelect = 'auto';
+      }
+    };
+
+    window.addEventListener('mousemove', handleMouseMove);
+    window.addEventListener('mouseup', handleMouseUp);
+
+    return () => {
+      window.removeEventListener('mousemove', handleMouseMove);
+      window.removeEventListener('mouseup', handleMouseUp);
+    };
+  }, []);
+
+  const startDragging = (e) => {
+    e.preventDefault();
+    isDraggingRef.current = true;
+    document.body.style.cursor = 'col-resize';
+    document.body.style.userSelect = 'none';
+  };
+  // ---------------------------------------------
 
   const [isRunning, setIsRunning] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -51,9 +90,13 @@ export default function WorkspacePage({ params }) {
         const data = await res.json();
         setProblem(data);
         
+        const defaultCpp = data.boilerplateCpp || `#include <iostream>\n#include <vector>\nusing namespace std;\n\n// Write your solution here`;
+        
         codeCache.current.javascript = data.boilerplateJs;
         codeCache.current.python = data.boilerplatePy;
-        setCode(language === 'javascript' ? data.boilerplateJs : data.boilerplatePy);
+        codeCache.current.cpp = defaultCpp;
+        
+        setCode(data.boilerplateJs);
       } catch (err) {
         setError(err.message);
       } finally {
@@ -83,7 +126,9 @@ export default function WorkspacePage({ params }) {
     if (cached) {
       setCode(cached);
     } else {
-      setCode(newLang === 'javascript' ? problem.boilerplateJs : problem.boilerplatePy);
+      if (newLang === 'javascript') setCode(problem.boilerplateJs);
+      else if (newLang === 'python') setCode(problem.boilerplatePy);
+      else if (newLang === 'cpp') setCode(problem.boilerplateCpp || `#include <iostream>\nusing namespace std;\n\n// Write your solution here`);
     }
   };
 
@@ -206,7 +251,13 @@ export default function WorkspacePage({ params }) {
   }
 
   return (
-    <div className={styles.workspaceGrid}>
+    <div 
+      ref={gridRef}
+      className={styles.workspaceGrid} 
+      style={{ gridTemplateColumns: '480px 6px 1fr' }}
+    >
+      
+      {/* LEFT COLUMN: Problem Description & Doubts */}
       <div className={`${styles.leftCol} glass-card`}>
         <div className={styles.tabHeaders}>
           <button 
@@ -309,9 +360,23 @@ export default function WorkspacePage({ params }) {
         </div>
       </div>
 
+      {/* DRAGGABLE RESIZER BAR */}
+      <div 
+        className={styles.resizerBar} 
+        onMouseDown={startDragging}
+        title="Drag to resize panels"
+      />
+
+      {/* RIGHT COLUMN: Code Editor & Test Console */}
       <div className={styles.rightCol}>
         <div className={`${styles.editorHeader} glass-card`}>
           <div className={styles.languageSelector}>
+            <button 
+              className={`${styles.langBtn} ${language === 'cpp' ? styles.langActive : ''}`}
+              onClick={() => handleLanguageChange('cpp')}
+            >
+              C++
+            </button>
             <button 
               className={`${styles.langBtn} ${language === 'javascript' ? styles.langActive : ''}`}
               onClick={() => handleLanguageChange('javascript')}
@@ -344,13 +409,13 @@ export default function WorkspacePage({ params }) {
               <span className="dot dot-green"></span>
             </div>
             <span className={styles.frameFileTitle}>
-              {problem.title.replace(/\s+/g, '_')}.{language === 'javascript' ? 'js' : 'py'}
+              {problem.title.replace(/\s+/g, '_')}.{language === 'javascript' ? 'js' : language === 'python' ? 'py' : 'cpp'}
             </span>
           </div>
           <div className={styles.editorWrapper}>
             <Editor
               height="100%"
-              language={language}
+              language={language === 'cpp' ? 'cpp' : language}
               theme="vs-dark"
               value={code}
               onChange={(val) => setCode(val || '')}
@@ -525,7 +590,6 @@ export default function WorkspacePage({ params }) {
         </div>
       )}
 
-      {/* Toast Notification */}
       {toast && (
         <div className={`${styles.toast} toast-${toast.type}`}>
           {toast.message}

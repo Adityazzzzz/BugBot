@@ -478,3 +478,73 @@
   line-height: 1.6;
   margin-bottom: 8px;
 }
+
+.workspaceGrid {
+  display: grid;
+  grid-template-columns: 480px 1fr;
+  height: calc(100vh - 71px);
+  gap: 16px;
+  padding: 16px;
+  max-width: 100vw;
+  transition: grid-template-columns 0.3s ease;
+}
+
+.collapsedLeftGrid {
+  grid-template-columns: 48px 1fr; /* Slim layout when left panel is collapsed */
+}
+
+.collapseIconBtn {
+  background: transparent;
+  border: none;
+  color: var(--text-secondary);
+  cursor: pointer;
+  padding: 0 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color var(--transition-fast);
+}
+
+.collapseIconBtn:hover {
+  color: var(--text-primary);
+}
+
+.expandPanelBtn {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  color: var(--text-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  height: 100%;
+  transition: background var(--transition-fast);
+}
+
+.expandPanelBtn:hover {
+  background: var(--border-color);
+}
+
+.workspaceGrid {
+  display: grid;
+  /* grid-template-columns is controlled dynamically via inline style for dragging */
+  height: calc(100vh - 71px);
+  gap: 0;
+  padding: 16px;
+  max-width: 100vw;
+  user-select: none; /* Prevents text highlighting while dragging */
+}
+
+.resizerBar {
+  width: 6px;
+  cursor: col-resize;
+  background: transparent;
+  position: relative;
+  transition: background 0.15s ease;
+  z-index: 10;
+}
+
+.resizerBar:hover {
+  background: var(--accent-cyan); /* Lights up like LeetCode's splitter line */
+}
