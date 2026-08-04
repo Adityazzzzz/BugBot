@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import {
-  ArrowRight, Terminal, Activity, Shield, CheckCircle2, Award, Clock
+  ArrowRight, Terminal, Activity, Shield, CheckCircle2, Award, Search, Sparkles
 } from 'lucide-react';
 import { useUser } from './context/UserContext';
 import styles from './page.module.css';
@@ -14,6 +14,10 @@ export default function HomePage() {
   const [submissions, setSubmissions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+
+  // Search and Filter States
+  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedDifficulty, setSelectedDifficulty] = useState('ALL');
 
   useEffect(() => {
     async function fetchData() {
@@ -41,117 +45,131 @@ export default function HomePage() {
     fetchData();
   }, []);
 
-  // Compute live statistics for the active user
+  // Compute live statistics for active user
   const userSubmissions = submissions.filter(s => s.userId === activeUser?.id);
   const solvedProblemIds = new Set(userSubmissions.filter(s => s.score === 100).map(s => s.problemId));
   const solvedCount = solvedProblemIds.size;
   const totalProblems = problems.length || 1;
   const completionPercentage = Math.round((solvedCount / totalProblems) * 100);
 
+  // Filter problems
+  const filteredProblems = problems.filter(prob => {
+    const matchesSearch = prob.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                          prob.description.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesDiff = selectedDifficulty === 'ALL' || prob.difficulty === selectedDifficulty;
+    return matchesSearch && matchesDiff;
+  });
+
   return (
     <div className={`${styles.dashboardContainer} container animated-fade`}>
-      {/* LEFT COLUMN: Main Bento Grid Content */}
+      {/* LEFT COLUMN: Main Problem Matrix */}
       <div className={styles.mainContent}>
-        {/* Hero Area */}
-        <section className={styles.hero}>
-          <div className={styles.topBadge}>
-            <span className={styles.badgePulse}></span>
-            <span>Automated Grading Portal Active</span>
+        
+        {/* Header & Command Bar */}
+        <div className={styles.matrixHeader}>
+          <div>
+            <div className={styles.topBadge}>
+              <Sparkles size={12} />
+              <span>Algorithmic Repository</span>
+            </div>
+            <h1>Coding Challenges</h1>
+            <p className="txtSecondary">Select a problem to run sandboxed code or test AI feedback.</p>
           </div>
-          <h1 className={styles.title}>
-            Compile Code. Resolve Doubts. <br />
-            <span className={styles.glowText}>Accelerated by AI.</span>
-          </h1>
-          <p className={styles.subtitle}>
-            A safe, sandboxed environment for practicing C++, Python & JavaScript. Get instant test outcomes and structured AI qualitative feedback on complexity and style.
-          </p>
-        </section>
 
-        {/* Bento Grid Header */}
-        <div className={styles.sectionHeader}>
-          <h2>
-            <Terminal size={18} className={styles.sectionIcon} />
-            Coding Challenges ({problems.length})
-          </h2>
+          <div className={styles.commandBar}>
+            <div className={styles.searchBox}>
+              <Search size={16} className={styles.searchIcon} />
+              <input 
+                type="text" 
+                placeholder="Search 53+ challenges..." 
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+              />
+            </div>
+          </div>
         </div>
 
+        {/* Filter Navigation Tabs */}
+        <div className={styles.filterTabs}>
+          {['ALL', 'EASY', 'MEDIUM', 'HARD'].map((diff) => (
+            <button
+              key={diff}
+              onClick={() => setSelectedDifficulty(diff)}
+              className={`${styles.tabBtn} ${selectedDifficulty === diff ? styles.activeTab : ''}`}
+            >
+              {diff === 'ALL' ? `All Challenges (${problems.length})` : diff.charAt(0) + diff.slice(1).toLowerCase()}
+            </button>
+          ))}
+        </div>
+
+        {/* Problems Grid Container */}
         {loading ? (
           <div className={styles.loaderWrapper}>
             <div className={styles.spinner}></div>
-            <p>Retrieving assignments...</p>
+            <p>Loading repository...</p>
           </div>
         ) : error ? (
           <div className={styles.errorCard}>
-            <p className={styles.errorMsg}>Grading Backend Offline</p>
-            <p className={styles.errorHint}>Please ensure the Express server is running on port 5000: <code>npm run dev</code> inside the backend folder.</p>
+            <p className={styles.errorMsg}>Backend Offline</p>
+            <p className={styles.errorHint}>Ensure Express is running on port 5000: <code>npm run dev</code></p>
+          </div>
+        ) : filteredProblems.length === 0 ? (
+          <div className={styles.emptyState}>
+            <p>No challenges match your criteria.</p>
           </div>
         ) : (
-          <div className={styles.bentoGrid}>
-            {problems.map((prob) => {
-              let tcCount = 0;
-              try {
-                tcCount = prob.testCases ? JSON.parse(prob.testCases).length : 0;
-              } catch (e) {
-                console.error("Failed to parse testCases:", e);
-              }
+          <div className={styles.cardScrollContainer}>
+            <div className={styles.problemsGrid}>
+              {filteredProblems.map((prob) => {
+                const isSolved = solvedProblemIds.has(prob.id);
+                let tcCount = 3;
+                try {
+                  tcCount = prob.testCases ? JSON.parse(prob.testCases).length : 3;
+                } catch (e) {}
 
-              const isSolved = solvedProblemIds.has(prob.id);
-
-              let codePreview = '';
-              if (prob.id === 'problem-two-sum') {
-                codePreview = `def twoSum(nums, target):\n    seen = {}\n    for i, num in enumerate(nums):\n        # ...`;
-              } else if (prob.id === 'problem-palindrome-number') {
-                codePreview = `function isPalindrome(x) {\n  if (x < 0) return false;\n  let rev = 0;\n  # ...`;
-              } else {
-                codePreview = `int main() {\n    vector<int> nums;\n    // C++ Solution\n  # ...`;
-              }
-
-              return (
-                <div key={prob.id} className={`${styles.bentoCard} glass-card`}>
-                  <div className={styles.bentoCardBody}>
-                    <div className={styles.cardHeader}>
+                return (
+                  <Link href={`/workspace/${prob.id}`} key={prob.id} className={`${styles.problemCard} glass-card`}>
+                    <div className={styles.cardTopRow}>
                       <span className={`badge badge-${prob.difficulty.toLowerCase()}`}>
                         {prob.difficulty}
                       </span>
-                      <div className={styles.langTagsRow}>
-                        <span className={styles.langTag}>CPP</span>
-                        <span className={styles.langTag}>JS</span>
-                        <span className={styles.langTag}>Python</span>
+                      {isSolved ? (
+                        <span className={styles.solvedBadge}>
+                          <CheckCircle2 size={14} className="txtSuccess" /> Solved
+                        </span>
+                      ) : (
+                        <span className={styles.testCount}>{tcCount} test cases</span>
+                      )}
+                    </div>
+
+                    <div className={styles.cardBodyContent}>
+                      <h3 className={styles.cardTitle}>{prob.title}</h3>
+                      <p className={styles.cardDesc}>
+                        {prob.description.split('\n')[0].replace(/[`*]/g, '')}
+                      </p>
+                    </div>
+
+                    <div className={styles.cardFooter}>
+                      <div className={styles.langPills}>
+                        <span className={styles.langBadgeItem}>C++</span>
+                        <span className={styles.langBadgeItem}>JS</span>
+                        <span className={styles.langBadgeItem}>Py</span>
                       </div>
+                      <span className={styles.solveAction}>
+                        <span>Solve</span>
+                        <ArrowRight size={14} className={styles.arrowIcon} />
+                      </span>
                     </div>
-
-                    <h3 className={styles.problemTitle}>
-                      {isSolved && <CheckCircle2 size={16} className="txtSuccess" style={{ display: 'inline', marginRight: '6px' }} />}
-                      {prob.title}
-                    </h3>
-                    <p className={styles.problemDesc}>
-                      {prob.description.split('\n')[0].replace(/[`*]/g, '')}
-                    </p>
-
-                    <div className={styles.codeSnippetBlock}>
-                      <pre><code>{codePreview}</code></pre>
-                    </div>
-                  </div>
-
-                  <div className={styles.cardFooter}>
-                    <span className={styles.tcLabel}>
-                      <strong>{tcCount}</strong> test cases
-                    </span>
-                    <Link href={`/workspace/${prob.id}`} className="btn btn-primary">
-                      Solve Challenge
-                      <ArrowRight size={14} />
-                    </Link>
-                  </div>
-                </div>
-              );
-            })}
+                  </Link>
+                );
+              })}
+            </div>
           </div>
         )}
       </div>
 
       {/* RIGHT COLUMN: Dynamic Live Sidebar */}
       <aside className={styles.sidebar}>
-        {/* User Progress Analytics Widget */}
         <div className={`${styles.sidebarWidget} glass-card`}>
           <div className={styles.widgetHeader}>
             <Award size={16} className={styles.widgetIcon} />
@@ -167,17 +185,16 @@ export default function HomePage() {
               <span className={styles.metricVal}>23U03031</span>
             </div>
             <div className={styles.metricItem}>
-              <span>Problems Solved</span>
+              <span>Solved</span>
               <span className={styles.metricValSuccess}>{solvedCount} / {problems.length}</span>
             </div>
             <div className={styles.metricItem}>
-              <span>Completion Rate</span>
+              <span>Completion</span>
               <span className={styles.metricVal}>{completionPercentage}%</span>
             </div>
           </div>
         </div>
 
-        {/* Live Database Activity Stream */}
         <div className={`${styles.sidebarWidget} glass-card`}>
           <div className={styles.widgetHeader}>
             <Activity size={16} className={styles.widgetIcon} style={{ color: 'var(--accent-purple)' }} />
@@ -211,7 +228,7 @@ export default function HomePage() {
             })}
             {submissions.length === 0 && (
               <p className="txtSecondary" style={{ fontSize: '0.85rem', textAlign: 'center', padding: '12px 0' }}>
-                No submissions recorded yet. Run code to populate stream!
+                No submissions recorded yet.
               </p>
             )}
           </div>
