@@ -22,9 +22,10 @@ export default function HomePage() {
   useEffect(() => {
     async function fetchData() {
       try {
+        const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
         const [probRes, subRes] = await Promise.all([
-          fetch('http://localhost:5000/api/problems'),
-          fetch('http://localhost:5000/api/submissions')
+          fetch(`${API_URL}/problems`),
+          fetch(`${API_URL}/submissions`)
         ]);
         
         if (!probRes.ok || !subRes.ok) {
@@ -69,11 +70,13 @@ export default function HomePage() {
         <div className={styles.matrixHeader}>
           <div>
             <div className={styles.topBadge}>
-              <Sparkles size={12} />
               <span>Algorithmic Repository</span>
             </div>
             <h1>Coding Challenges</h1>
-            <p className="txtSecondary">Select a problem to run sandboxed code or test AI feedback.</p>
+            <p className="txtSecondary">
+              Explore {problems.length > 0 ? `${problems.length} active modules` : '3,600+ problems'}. Select a challenge to run sandboxed code or test AI feedback.
+            </p>
+            <span>Can be extended till (3,600+ Problems)</span>
           </div>
 
           <div className={styles.commandBar}>
