@@ -51,7 +51,7 @@ export default function WorkspacePage({ params }) {
   useEffect(() => {
     async function fetchProblem() {
       try {
-        const res = await fetch(`http://localhost:5000/api/problems/${problemId}`);
+        const res = await fetch(`/api/problems/${problemId}`);
         if (!res.ok) throw new Error('Failed to load coding assignment details');
         const data = await res.json();
         setProblem(data);
@@ -74,7 +74,7 @@ export default function WorkspacePage({ params }) {
   // Fetch Doubt board threads for this problem
   async function fetchProblemDoubts() {
     try {
-      const res = await fetch(`http://localhost:5000/api/doubts/problem/${problemId}`);
+      const res = await fetch(`/api/doubts/problem/${problemId}`);
       if (res.ok) {
         const data = await res.json();
         setDoubts(data);
@@ -106,7 +106,7 @@ export default function WorkspacePage({ params }) {
     setConsoleOutput({ running: true });
     
     try {
-      const res = await fetch('http://localhost:5000/api/submissions/run', {
+      const res = await fetch('/api/submissions/run', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ problemId, code, language })
@@ -142,7 +142,7 @@ export default function WorkspacePage({ params }) {
     setAiFeedback(null);
 
     try {
-      const res = await fetch('http://localhost:5000/api/submissions/submit', {
+      const res = await fetch('/api/submissions/submit', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -162,11 +162,11 @@ export default function WorkspacePage({ params }) {
         type: 'submit',
         score: data.score,
         status: data.status,
-        results: JSON.parse(data.results)
+        results: data.results
       });
 
       if (data.aiFeedback) {
-        const feedbackObj = JSON.parse(data.aiFeedback);
+        const feedbackObj = data.aiFeedback;
         setAiFeedback(feedbackObj);
       }
     } catch (err) {
@@ -191,7 +191,7 @@ export default function WorkspacePage({ params }) {
     setIsPostingDoubt(true);
 
     try {
-      const res = await fetch('http://localhost:5000/api/doubts', {
+      const res = await fetch('/api/doubts', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

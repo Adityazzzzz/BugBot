@@ -100,9 +100,9 @@ export default function Navbar() {
                   {activeUser?.username?.substring(0, 2).toUpperCase() || 'U'}
                 </div>
                 <div className={styles.profileMeta}>
-                  <span className={styles.profileName}>{activeUser?.username}</span>
+                  <span className={styles.profileName}>ADITYA SING</span>
                   <span className={styles.profileRole}>
-                    {activeUser?.role === 'TEACHER' ? 'Instructor' : 'Student'}
+                    ID: 23U03031 | {activeUser?.role === 'TEACHER' ? 'Instructor' : 'Student'}
                   </span>
                 </div>
                 <ChevronDown size={14} className={`${styles.chevron} ${dropdownOpen ? styles.chevronUp : ''}`} />
