@@ -2,9 +2,9 @@
 
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { 
-  ArrowRight, Code, HelpCircle, Terminal, Layers, 
-  Activity, Shield, Play, HelpCircle as HelpIcon, FileCode, CheckCircle2 
+import {
+  ArrowRight, Code, HelpCircle, Terminal, Layers,
+  Activity, Shield, Play, HelpCircle as HelpIcon, FileCode, CheckCircle2
 } from 'lucide-react';
 import styles from './page.module.css';
 
@@ -33,9 +33,9 @@ export default function HomePage() {
 
   // Mock activity stream log for high-fidelity SaaS dashboard
   const activities = [
-    { user: 'john_student', action: 'submitted solution for', target: 'Two Sum', status: 'PASSED', score: 100, time: '3 mins ago' },
+    { user: 'aditya', action: 'submitted solution for', target: 'Two Sum', status: 'PASSED', score: 100, time: '3 mins ago' },
     { user: 'sarah_teacher', action: 'approved AI reply on doubt:', target: 'Loop boundaries', status: 'MODERATED', score: null, time: '12 mins ago' },
-    { user: 'john_student', action: 'submitted solution for', target: 'Palindrome Number', status: 'FAILED', score: 33, time: '25 mins ago' },
+    { user: 'aditya', action: 'submitted solution for', target: 'Palindrome Number', status: 'FAILED', score: 33, time: '25 mins ago' },
     { user: 'AI Mentor', action: 'generated feedback for', target: 'Reverse String', status: 'COMPLETED', score: null, time: '40 mins ago' },
   ];
 
@@ -85,7 +85,7 @@ export default function HomePage() {
               } catch (e) {
                 console.error("Failed to parse testCases on list card:", e);
               }
-              
+
               // Custom code block preview depending on problem to make it look highly tailored and human-made
               let codePreview = '';
               if (prob.id === 'problem-two-sum') {

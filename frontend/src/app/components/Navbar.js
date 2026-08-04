@@ -97,12 +97,15 @@ export default function Navbar() {
                 className={styles.profileCardBtn}
               >
                 <div className={`${styles.avatar} ${activeUser?.role === 'TEACHER' ? styles.avatarTeacher : styles.avatarStudent}`}>
-                  {activeUser?.username?.substring(0, 2).toUpperCase() || 'U'}
+                  {activeUser?.role === 'STUDENT' ? 'AS' : 'SA'}
                 </div>
+                
                 <div className={styles.profileMeta}>
-                  <span className={styles.profileName}>ADITYA SING</span>
+                  <span className={styles.profileName}>
+                    {activeUser?.role === 'STUDENT' ? 'Aditya Singh' : 'Sarah (Instructor)'}
+                  </span>
                   <span className={styles.profileRole}>
-                    ID: 23U03031 | {activeUser?.role === 'TEACHER' ? 'Instructor' : 'Student'}
+                    {activeUser?.role === 'STUDENT' ? 'ID: 23U03031 | Student' : 'Course Moderation'}
                   </span>
                 </div>
                 <ChevronDown size={14} className={`${styles.chevron} ${dropdownOpen ? styles.chevronUp : ''}`} />
@@ -110,14 +113,18 @@ export default function Navbar() {
 
               {/* Dropdown Card */}
               {dropdownOpen && (
-                <div className={`${styles.dropdownCard} glass-card`}>
+                <div className={styles.dropdownCard}>
                   <div className={styles.dropdownHeader}>
-                    <Sparkles size={14} className={styles.sparkleIcon} />
                     <span>Select Profile</span>
                   </div>
                   <ul className={styles.userList}>
                     {users.map((u) => {
                       const isSelected = activeUser?.id === u.id;
+                      
+                      const displayName = u.role === 'STUDENT' ? 'Aditya Singh' : 'Sarah (Instructor)';
+                      const displayInitials = u.role === 'STUDENT' ? 'AS' : 'SA';
+                      const displayRole = u.role === 'TEACHER' ? 'Course Instructor' : 'ID: 23U03031 | Learner';
+
                       return (
                         <li key={u.id}>
                           <button 
@@ -128,15 +135,12 @@ export default function Navbar() {
                             }}
                           >
                             <div className={`${styles.avatar} ${u.role === 'TEACHER' ? styles.avatarTeacher : styles.avatarStudent}`}>
-                              {u.username.substring(0, 2).toUpperCase()}
+                              {displayInitials}
                             </div>
                             <div className={styles.optionMeta}>
-                              <span className={styles.optionName}>{u.username}</span>
-                              <span className={styles.optionRole}>
-                                {u.role === 'TEACHER' ? 'Course Instructor' : 'Active Learner'}
-                              </span>
+                              <span className={styles.optionName}>{displayName}</span>
+                              <span className={styles.optionRole}>{displayRole}</span>
                             </div>
-                            {isSelected && <Check size={16} className={styles.checkIcon} />}
                           </button>
                         </li>
                       );

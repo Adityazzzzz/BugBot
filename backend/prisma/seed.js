@@ -7,10 +7,10 @@ async function main() {
 
   // Create default Student and Teacher users for testing
   const student = await prisma.user.upsert({
-    where: { username: 'john_student' },
+    where: { username: 'aditya' },
     update: {},
     create: {
-      username: 'john_student',
+      username: 'aditya',
       role: 'STUDENT',
     },
   });

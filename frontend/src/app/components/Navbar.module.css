@@ -1,8 +1,6 @@
 .navbar {
   height: 70px;
-  background: rgba(5, 5, 8, 0.75);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
+  background: var(--bg-dark); /* Unified background */
   border-bottom: 1px solid var(--border-color);
   position: sticky;
   top: 0;
@@ -11,13 +9,49 @@
 }
 
 .navContainer {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 0 24px;
-  height: 100%;
   display: flex;
   justify-content: space-between;
   align-items: center;
+  height: 100%;
+  max-width: 1280px; /* Constrain width for ultra-wide monitors */
+  margin: 0 auto;
+  padding: 0 24px;
+}
+
+/* Flex group for the center navigation links */
+.navLinks {
+  display: flex;
+  list-style: none;
+  gap: 8px;
+  align-items: center;
+  background: var(--bg-card); /* Encapsulated background */
+  padding: 4px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-color);
+}
+
+.navLinks a {
+  text-decoration: none;
+  color: var(--text-secondary);
+  font-size: 0.85rem;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  border-radius: var(--radius-sm);
+  transition: all var(--transition-fast);
+}
+
+.navLinks a:hover {
+  color: var(--text-primary);
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.navLinks a.active {
+  color: var(--text-primary);
+  background: rgba(255, 255, 255, 0.08); /* Subtle active state instead of neon */
+  box-shadow: none;
 }
 
 .brand {
@@ -168,16 +202,17 @@
   transform: rotate(180deg);
 }
 
-/* Custom Dropdown popover */
 .dropdownCard {
   position: absolute;
   top: calc(100% + 8px);
   right: 0;
-  width: 250px;
-  padding: 10px;
-  z-index: 1000;
-  border-color: rgba(255, 255, 255, 0.08);
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
+  width: 240px;
+  padding: 8px;
+  z-index: 99999;
+  background: #18181b;
+  border: 1px solid #3f3f46;
+  border-radius: var(--radius-md);
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.9); 
   animation: dropdownIn var(--transition-fast) ease-out;
 }
 
