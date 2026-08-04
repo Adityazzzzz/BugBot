@@ -5,6 +5,9 @@ import Navbar from './components/Navbar';
 export const metadata = {
   title: 'BugBot LMS - AI Grading & Doubt Portal',
   description: 'Submit code, get automated qualitative reviews, and participate in a shared moderated doubt board.',
+  icons: {
+    icon: '/logo.jpg',
+  },
 };
 
 export default function RootLayout({ children }) {

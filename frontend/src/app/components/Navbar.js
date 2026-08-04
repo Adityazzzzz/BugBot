@@ -4,7 +4,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useUser } from '../context/UserContext';
-import { Code2, HelpCircle, ShieldAlert, ChevronDown, Check, User, Sparkles } from 'lucide-react';
+import { Code2, HelpCircle, ShieldAlert, ChevronDown, Check } from 'lucide-react';
 import styles from './Navbar.module.css';
 
 export default function Navbar() {
@@ -31,34 +31,12 @@ export default function Navbar() {
   return (
     <nav className={styles.navbar}>
       <div className={styles.navContainer}>
-        {/* Abstract Cybernetic Logo */}
+        {/* Sleek Modern Logo */}
         <Link href="/" className={styles.brand}>
-          <svg className={styles.logoSvg} viewBox="0 0 100 100" width="32" height="32">
-            <defs>
-              <linearGradient id="logoGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-                <stop offset="0%" stopColor="#06b6d4" />
-                <stop offset="50%" stopColor="#3b82f6" />
-                <stop offset="100%" stopColor="#8b5cf6" />
-              </linearGradient>
-            </defs>
-            <polygon 
-              points="50,15 80,32 80,68 50,85 20,68 20,32" 
-              fill="none" 
-              stroke="url(#logoGrad)" 
-              strokeWidth="6" 
-            />
-            <polygon 
-              points="50,28 70,40 70,60 50,72 30,60 30,40" 
-              fill="none" 
-              stroke="url(#logoGrad)" 
-              strokeWidth="2" 
-              strokeDasharray="4 2"
-            />
-            <circle cx="50" cy="50" r="10" fill="url(#logoGrad)" />
-          </svg>
+          <img src="/logo.jpg" alt="BugBot Logo" className={styles.brandLogoImg} />
           <div className={styles.brandText}>
             <span className={styles.brandGrad}>BugBot</span>
-            <span className={styles.brandSub}>Portal</span>
+            <span className={styles.brandSub}>AI Sandbox</span>
           </div>
         </Link>
 
@@ -105,7 +83,7 @@ export default function Navbar() {
                     {activeUser?.role === 'STUDENT' ? 'Aditya Singh' : 'Sarah (Instructor)'}
                   </span>
                   <span className={styles.profileRole}>
-                    {activeUser?.role === 'STUDENT' ? 'ID: 23U03031 | Student' : 'Course Moderation'}
+                    {activeUser?.role === 'STUDENT' ? 'ID: 23U03031' : 'Moderator'}
                   </span>
                 </div>
                 <ChevronDown size={14} className={`${styles.chevron} ${dropdownOpen ? styles.chevronUp : ''}`} />
@@ -115,7 +93,7 @@ export default function Navbar() {
               {dropdownOpen && (
                 <div className={styles.dropdownCard}>
                   <div className={styles.dropdownHeader}>
-                    <span>Select Profile</span>
+                    <span>Switch Active Profile</span>
                   </div>
                   <ul className={styles.userList}>
                     {users.map((u) => {
@@ -141,6 +119,7 @@ export default function Navbar() {
                               <span className={styles.optionName}>{displayName}</span>
                               <span className={styles.optionRole}>{displayRole}</span>
                             </div>
+                            {isSelected && <Check size={14} className={styles.checkIcon} />}
                           </button>
                         </li>
                       );

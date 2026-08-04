@@ -1,6 +1,6 @@
 .navbar {
   height: 70px;
-  background: var(--bg-dark); /* Unified background */
+  background: var(--bg-dark);
   border-bottom: 1px solid var(--border-color);
   position: sticky;
   top: 0;
@@ -13,47 +13,12 @@
   justify-content: space-between;
   align-items: center;
   height: 100%;
-  max-width: 1280px; /* Constrain width for ultra-wide monitors */
+  max-width: 1280px;
   margin: 0 auto;
   padding: 0 24px;
 }
 
-/* Flex group for the center navigation links */
-.navLinks {
-  display: flex;
-  list-style: none;
-  gap: 8px;
-  align-items: center;
-  background: var(--bg-card); /* Encapsulated background */
-  padding: 4px;
-  border-radius: var(--radius-md);
-  border: 1px solid var(--border-color);
-}
-
-.navLinks a {
-  text-decoration: none;
-  color: var(--text-secondary);
-  font-size: 0.85rem;
-  font-weight: 500;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 8px 16px;
-  border-radius: var(--radius-sm);
-  transition: all var(--transition-fast);
-}
-
-.navLinks a:hover {
-  color: var(--text-primary);
-  background: rgba(255, 255, 255, 0.04);
-}
-
-.navLinks a.active {
-  color: var(--text-primary);
-  background: rgba(255, 255, 255, 0.08); /* Subtle active state instead of neon */
-  box-shadow: none;
-}
-
+/* --- Refined Logo Styling --- */
 .brand {
   text-decoration: none;
   display: flex;
@@ -66,8 +31,17 @@
   opacity: 0.85;
 }
 
-.logoSvg {
-  filter: drop-shadow(0 0 8px rgba(6, 182, 212, 0.3));
+.logoBadgeIcon {
+  width: 36px;
+  height: 36px;
+  background: linear-gradient(135deg, rgba(6, 182, 212, 0.15), rgba(59, 130, 246, 0.2));
+  border: 1px solid rgba(6, 182, 212, 0.3);
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--accent-cyan);
+  box-shadow: 0 0 12px rgba(6, 182, 212, 0.15);
 }
 
 .brandText {
@@ -76,9 +50,9 @@
 }
 
 .brandGrad {
-  font-weight: 800;
-  font-size: 1.15rem;
-  letter-spacing: -0.03em;
+  font-weight: 700;
+  font-size: 1.1rem;
+  letter-spacing: -0.02em;
   background: var(--accent-gradient);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -87,28 +61,33 @@
 
 .brandSub {
   font-weight: 500;
-  font-size: 0.75rem;
-  color: var(--text-secondary);
-  letter-spacing: 0.05em;
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  letter-spacing: 0.08em;
   text-transform: uppercase;
 }
 
+/* Navigation Links */
 .navLinks {
   display: flex;
   list-style: none;
   gap: 6px;
   align-items: center;
+  background: var(--bg-card);
+  padding: 4px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-color);
 }
 
 .navLinks a {
   text-decoration: none;
   color: var(--text-secondary);
-  font-size: 0.9rem;
+  font-size: 0.88rem;
   font-weight: 600;
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 8px 16px;
+  padding: 6px 14px;
   border-radius: var(--radius-sm);
   border: 1px solid transparent;
   transition: all var(--transition-fast);
@@ -121,11 +100,11 @@
 
 .navLinks a.active {
   color: var(--text-primary);
-  background: rgba(6, 182, 212, 0.06);
-  border: 1px solid rgba(6, 182, 212, 0.15);
-  box-shadow: 0 0 15px -3px rgba(6, 182, 212, 0.1);
+  background: rgba(6, 182, 212, 0.08);
+  border: 1px solid rgba(6, 182, 212, 0.2);
 }
 
+/* User Section & Dropdown Card */
 .userSection {
   position: relative;
 }
@@ -138,9 +117,9 @@
   display: flex;
   align-items: center;
   gap: 12px;
-  background: rgba(255, 255, 255, 0.02);
+  background: var(--bg-card);
   border: 1px solid var(--border-color);
-  padding: 6px 14px;
+  padding: 6px 12px;
   border-radius: var(--radius-sm);
   cursor: pointer;
   outline: none;
@@ -148,8 +127,8 @@
 }
 
 .profileCardBtn:hover {
-  background: rgba(255, 255, 255, 0.06);
-  border-color: rgba(255, 255, 255, 0.15);
+  border-color: var(--border-color-hover);
+  background: rgba(255, 255, 255, 0.04);
 }
 
 .avatar {
@@ -160,9 +139,10 @@
   align-items: center;
   justify-content: center;
   font-weight: 700;
-  font-size: 0.75rem;
+  font-size: 0.72rem;
   color: #ffffff;
   font-family: var(--font-mono);
+  flex-shrink: 0;
 }
 
 .avatarStudent {
@@ -184,59 +164,56 @@
 
 .profileName {
   font-weight: 600;
-  font-size: 0.88rem;
+  font-size: 0.85rem;
   color: var(--text-primary);
+  white-space: nowrap;
 }
 
 .profileRole {
-  font-size: 0.72rem;
-  color: var(--text-secondary);
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  white-space: nowrap;
 }
 
 .chevron {
-  color: var(--text-secondary);
+  color: var(--text-muted);
   transition: transform var(--transition-fast);
+  margin-left: 2px;
 }
 
 .chevronUp {
   transform: rotate(180deg);
 }
 
+/* Clean Dropdown Card Fixes */
 .dropdownCard {
   position: absolute;
   top: calc(100% + 8px);
   right: 0;
-  width: 240px;
+  width: 260px;
   padding: 8px;
   z-index: 99999;
-  background: #18181b;
-  border: 1px solid #3f3f46;
+  background: var(--bg-card);
+  border: 1px solid var(--border-color-hover);
   border-radius: var(--radius-md);
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.9); 
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.8); 
   animation: dropdownIn var(--transition-fast) ease-out;
 }
 
 @keyframes dropdownIn {
-  from { opacity: 0; transform: translateY(8px); }
+  from { opacity: 0; transform: translateY(6px); }
   to { opacity: 1; transform: translateY(0); }
 }
 
 .dropdownHeader {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 0.75rem;
+  font-size: 0.72rem;
   font-weight: 700;
   color: var(--text-muted);
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  padding: 6px 8px 10px 8px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+  padding: 6px 8px 8px 8px;
+  border-bottom: 1px solid var(--border-color);
   margin-bottom: 6px;
-}
-
-.sparkleIcon {
-  color: var(--accent-cyan);
 }
 
 .userList {
@@ -262,34 +239,47 @@
 }
 
 .userOptionBtn:hover {
-  background: rgba(255, 255, 255, 0.04);
+  background: rgba(255, 255, 255, 0.05);
 }
 
 .userSelected {
-  background: rgba(6, 182, 212, 0.04);
-  border-color: rgba(6, 182, 212, 0.15);
+  background: rgba(6, 182, 212, 0.06);
+  border-color: rgba(6, 182, 212, 0.2);
 }
 
 .optionMeta {
   display: flex;
   flex-direction: column;
   flex-grow: 1;
+  overflow: hidden;
 }
 
 .optionName {
   font-weight: 600;
   font-size: 0.85rem;
   color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .optionRole {
-  font-size: 0.72rem;
-  color: var(--text-secondary);
+  font-size: 0.7rem;
+  color: var(--text-muted);
 }
 
 .checkIcon {
   color: var(--accent-cyan);
   flex-shrink: 0;
+}
+
+.brandLogoImg {
+  width: 34px;
+  height: 34px;
+  object-fit: cover;
+  border-radius: 8px;
+  border: 1px solid var(--border-color);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
 }
 
 .loader {
