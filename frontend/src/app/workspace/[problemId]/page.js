@@ -393,23 +393,35 @@ export default function WorkspacePage({ params }) {
           </div>
         </div>
 
-        {/* Monaco Editor Component */}
-        <div className={styles.editorContainer}>
-          <Editor
-            height="100%"
-            language={language}
-            theme="vs-dark"
-            value={code}
-            onChange={(val) => setCode(val || '')}
-            options={{
-              fontSize: 14,
-              fontFamily: 'JetBrains Mono',
-              minimap: { enabled: false },
-              scrollbar: { vertical: 'visible', horizontal: 'visible' },
-              automaticLayout: true,
-              padding: { top: 12 }
-            }}
-          />
+        {/* Monaco Editor Component styled as a Mac terminal frame */}
+        <div className={styles.editorFrame}>
+          <div className={styles.frameHeader}>
+            <div className="window-controls">
+              <span className="dot dot-red"></span>
+              <span className="dot dot-yellow"></span>
+              <span className="dot dot-green"></span>
+            </div>
+            <span className={styles.frameFileTitle}>
+              {problem.title.replace(/\s+/g, '_')}.{language === 'javascript' ? 'js' : 'py'}
+            </span>
+          </div>
+          <div className={styles.editorWrapper}>
+            <Editor
+              height="100%"
+              language={language}
+              theme="vs-dark"
+              value={code}
+              onChange={(val) => setCode(val || '')}
+              options={{
+                fontSize: 14,
+                fontFamily: 'JetBrains Mono',
+                minimap: { enabled: false },
+                scrollbar: { vertical: 'visible', horizontal: 'visible' },
+                automaticLayout: true,
+                padding: { top: 12 }
+              }}
+            />
+          </div>
         </div>
 
         {/* CONSOLE OUTPUT PANEL */}

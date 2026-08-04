@@ -1,8 +1,8 @@
 .navbar {
   height: 70px;
-  background: rgba(10, 10, 15, 0.7);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  background: rgba(5, 5, 8, 0.75);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
   border-bottom: 1px solid var(--border-color);
   position: sticky;
   top: 0;
@@ -13,7 +13,7 @@
 .navContainer {
   max-width: 1200px;
   margin: 0 auto;
-  padding: 0 20px;
+  padding: 0 24px;
   height: 100%;
   display: flex;
   justify-content: space-between;
@@ -22,106 +22,246 @@
 
 .brand {
   text-decoration: none;
-  font-weight: 700;
-  font-size: 1.4rem;
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: 12px;
+  transition: opacity var(--transition-fast);
+}
+
+.brand:hover {
+  opacity: 0.85;
+}
+
+.logoSvg {
+  filter: drop-shadow(0 0 8px rgba(6, 182, 212, 0.3));
+}
+
+.brandText {
+  display: flex;
+  flex-direction: column;
 }
 
 .brandGrad {
+  font-weight: 800;
+  font-size: 1.15rem;
+  letter-spacing: -0.03em;
   background: var(--accent-gradient);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
+  line-height: 1.1;
 }
 
 .brandSub {
-  color: var(--text-primary);
+  font-weight: 500;
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
 }
 
 .navLinks {
   display: flex;
   list-style: none;
-  gap: 8px;
-  height: 100%;
+  gap: 6px;
   align-items: center;
 }
 
 .navLinks a {
   text-decoration: none;
   color: var(--text-secondary);
-  font-size: 0.95rem;
-  font-weight: 500;
+  font-size: 0.9rem;
+  font-weight: 600;
   display: flex;
   align-items: center;
   gap: 8px;
   padding: 8px 16px;
   border-radius: var(--radius-sm);
+  border: 1px solid transparent;
   transition: all var(--transition-fast);
 }
 
 .navLinks a:hover {
   color: var(--text-primary);
-  background: rgba(255, 255, 255, 0.04);
+  background: rgba(255, 255, 255, 0.03);
 }
 
 .navLinks a.active {
   color: var(--text-primary);
-  background: rgba(99, 102, 241, 0.15);
-  border: 1px solid rgba(99, 102, 241, 0.3);
-  box-shadow: 0 0 15px -3px rgba(99, 102, 241, 0.25);
-}
-
-.navLinks a:hover {
-  transform: translateY(-0.5px);
+  background: rgba(6, 182, 212, 0.06);
+  border: 1px solid rgba(6, 182, 212, 0.15);
+  box-shadow: 0 0 15px -3px rgba(6, 182, 212, 0.1);
 }
 
 .userSection {
-  display: flex;
-  align-items: center;
+  position: relative;
 }
 
-.selectorWrapper {
+.profileTriggerWrapper {
+  position: relative;
+}
+
+.profileCardBtn {
   display: flex;
   align-items: center;
-  background: rgba(255, 255, 255, 0.05);
+  gap: 12px;
+  background: rgba(255, 255, 255, 0.02);
   border: 1px solid var(--border-color);
-  padding: 4px 10px;
+  padding: 6px 14px;
   border-radius: var(--radius-sm);
-  gap: 8px;
+  cursor: pointer;
+  outline: none;
   transition: all var(--transition-fast);
 }
 
-.selectorWrapper:hover {
-  border-color: rgba(255, 255, 255, 0.2);
-  background: rgba(255, 255, 255, 0.08);
+.profileCardBtn:hover {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(255, 255, 255, 0.15);
 }
 
-.userIcon {
+.avatar {
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 0.75rem;
+  color: #ffffff;
+  font-family: var(--font-mono);
+}
+
+.avatarStudent {
+  background: linear-gradient(135deg, #06b6d4 0%, #3b82f6 100%);
+  box-shadow: 0 0 8px rgba(6, 182, 212, 0.3);
+}
+
+.avatarTeacher {
+  background: linear-gradient(135deg, #8b5cf6 0%, #d946ef 100%);
+  box-shadow: 0 0 8px rgba(139, 92, 246, 0.3);
+}
+
+.profileMeta {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  line-height: 1.2;
+}
+
+.profileName {
+  font-weight: 600;
+  font-size: 0.88rem;
+  color: var(--text-primary);
+}
+
+.profileRole {
+  font-size: 0.72rem;
   color: var(--text-secondary);
 }
 
-.userSelector {
-  background: transparent;
-  border: none;
-  color: var(--text-primary);
-  outline: none;
-  cursor: pointer;
-  font-weight: 500;
-  font-size: 0.85rem;
-  padding: 2px 8px;
+.chevron {
+  color: var(--text-secondary);
+  transition: transform var(--transition-fast);
 }
 
-.userSelector option {
-  background: #0f0f15;
+.chevronUp {
+  transform: rotate(180deg);
+}
+
+/* Custom Dropdown popover */
+.dropdownCard {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  width: 250px;
+  padding: 10px;
+  z-index: 1000;
+  border-color: rgba(255, 255, 255, 0.08);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
+  animation: dropdownIn var(--transition-fast) ease-out;
+}
+
+@keyframes dropdownIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.dropdownHeader {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 6px 8px 10px 8px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+  margin-bottom: 6px;
+}
+
+.sparkleIcon {
+  color: var(--accent-cyan);
+}
+
+.userList {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.userOptionBtn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: transparent;
+  border: 1px solid transparent;
+  padding: 8px 10px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  outline: none;
+  transition: all var(--transition-fast);
+  text-align: left;
+}
+
+.userOptionBtn:hover {
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.userSelected {
+  background: rgba(6, 182, 212, 0.04);
+  border-color: rgba(6, 182, 212, 0.15);
+}
+
+.optionMeta {
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+}
+
+.optionName {
+  font-weight: 600;
+  font-size: 0.85rem;
   color: var(--text-primary);
+}
+
+.optionRole {
+  font-size: 0.72rem;
+  color: var(--text-secondary);
+}
+
+.checkIcon {
+  color: var(--accent-cyan);
+  flex-shrink: 0;
 }
 
 .loader {
   width: 20px;
   height: 20px;
-  border: 2px solid rgba(255, 255, 255, 0.1);
-  border-bottom-color: var(--accent-primary);
+  border: 2px solid rgba(255, 255, 255, 0.05);
+  border-bottom-color: var(--accent-cyan);
   border-radius: 50%;
   display: inline-block;
   animation: rotation 1s linear infinite;
