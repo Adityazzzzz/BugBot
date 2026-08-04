@@ -1,10 +1,5 @@
 'use client';
 
-/**
- * DoubtBoardHub component.
- * Displays student questions filtered by challenge with approved mentor responses.
- * Restricts unapproved AI replies to keep the shared board secure and clean.
- */
 import React, { useEffect, useState } from 'react';
 import { useUser } from '../context/UserContext';
 import { HelpCircle, MessageSquareCode, Filter, ChevronRight, User, BookOpen } from 'lucide-react';
@@ -18,11 +13,10 @@ export default function DoubtBoardHub() {
   const [loading, setLoading] = useState(true);
   const [expandedDoubtId, setExpandedDoubtId] = useState(null);
 
-  // Fetch coding assignments to fill filter list
   useEffect(() => {
     async function initBoard() {
       try {
-        const pRes = await fetch('http://localhost:5000/api/problems');
+        const pRes = await fetch('/api/problems');
         if (pRes.ok) {
           const pData = await pRes.json();
           setProblems(pData);
@@ -34,31 +28,11 @@ export default function DoubtBoardHub() {
     initBoard();
   }, []);
 
-  // Fetch doubts based on selected filter
   useEffect(() => {
     async function loadDoubts() {
       setLoading(true);
       try {
-        let url = 'http://localhost:5000/api/doubts/problem/all';
-        // Note: we can fetch doubts by problem id. If 'all', we will loop and merge or the backend supports '/problem/all' endpoint.
-        // Wait, on the backend, did we write getProblemDoubts with ':problemId' route?
-        // Let's check backend routes/doubtRoutes.js:
-        // `router.get('/problem/:problemId', getProblemDoubts);`
-        // And backend controller:
-        // `const { problemId } = req.params;`
-        // Wait, if problemId is 'all', does it fetch all doubts? Let's check doubtController getProblemDoubts:
-        // `where: { problemId }`
-        // Ah! If problemId is 'all', Prisma will look for problemId = 'all' which will return empty since no problem has ID 'all'!
-        // Let's see: we should make getProblemDoubts support 'all' by omitting the where filter if problemId === 'all'!
-        // Let's modify the backend controller or adjust the frontend to fetch for the selected problem, or if 'all' is selected, we can fetch all problems' doubts or we can update the backend to handle 'all' queries cleanly!
-        // Yes, updating the backend controller to handle problemId = 'all' is extremely clean!
-        // But wait! Let's check how the backend is written. In the backend doubtController.js, we have:
-        // `const doubts = await prisma.doubt.findMany({ where: { problemId } })`
-        // Let's write a quick improvement to the backend doubtController.js to check:
-        // `const whereClause = problemId === 'all' ? {} : { problemId };`
-        // Yes! That's a tiny improvement that makes the filter work flawlessly! Let's do it after this.
-        
-        const res = await fetch(`http://localhost:5000/api/doubts/problem/${selectedProblemId}`);
+        const res = await fetch(`/api/doubts/problem/${selectedProblemId}`);
         if (res.ok) {
           const data = await res.json();
           setDoubts(data);
@@ -85,7 +59,6 @@ export default function DoubtBoardHub() {
           <p>Browse educational answers drafted by AI and reviewed by your course instructors.</p>
         </div>
 
-        {/* Filter panel */}
         <div className={styles.filterWrapper}>
           <Filter size={16} />
           <span className={styles.filterLabel}>Challenge Filter:</span>
