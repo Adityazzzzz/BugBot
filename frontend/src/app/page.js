@@ -3,41 +3,50 @@
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import {
-  ArrowRight, Code, HelpCircle, Terminal, Layers,
-  Activity, Shield, Play, HelpCircle as HelpIcon, FileCode, CheckCircle2
+  ArrowRight, Terminal, Activity, Shield, CheckCircle2, Award, Clock
 } from 'lucide-react';
+import { useUser } from './context/UserContext';
 import styles from './page.module.css';
 
 export default function HomePage() {
+  const { activeUser } = useUser();
   const [problems, setProblems] = useState([]);
+  const [submissions, setSubmissions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    async function fetchProblems() {
+    async function fetchData() {
       try {
-        const res = await fetch('http://localhost:5000/api/problems');
-        if (!res.ok) {
+        const [probRes, subRes] = await Promise.all([
+          fetch('http://localhost:5000/api/problems'),
+          fetch('http://localhost:5000/api/submissions')
+        ]);
+        
+        if (!probRes.ok || !subRes.ok) {
           throw new Error('Server responded with an error');
         }
-        const data = await res.json();
-        setProblems(data);
+        
+        const probData = await probRes.json();
+        const subData = await subRes.json();
+        
+        setProblems(probData);
+        setSubmissions(subData);
       } catch (err) {
         setError(err.message);
       } finally {
         setLoading(false);
       }
     }
-    fetchProblems();
+    fetchData();
   }, []);
 
-  // Mock activity stream log for high-fidelity SaaS dashboard
-  const activities = [
-    { user: 'aditya', action: 'submitted solution for', target: 'Two Sum', status: 'PASSED', score: 100, time: '3 mins ago' },
-    { user: 'sarah_teacher', action: 'approved AI reply on doubt:', target: 'Loop boundaries', status: 'MODERATED', score: null, time: '12 mins ago' },
-    { user: 'aditya', action: 'submitted solution for', target: 'Palindrome Number', status: 'FAILED', score: 33, time: '25 mins ago' },
-    { user: 'AI Mentor', action: 'generated feedback for', target: 'Reverse String', status: 'COMPLETED', score: null, time: '40 mins ago' },
-  ];
+  // Compute live statistics for the active user
+  const userSubmissions = submissions.filter(s => s.userId === activeUser?.id);
+  const solvedProblemIds = new Set(userSubmissions.filter(s => s.score === 100).map(s => s.problemId));
+  const solvedCount = solvedProblemIds.size;
+  const totalProblems = problems.length || 1;
+  const completionPercentage = Math.round((solvedCount / totalProblems) * 100);
 
   return (
     <div className={`${styles.dashboardContainer} container animated-fade`}>
@@ -54,7 +63,7 @@ export default function HomePage() {
             <span className={styles.glowText}>Accelerated by AI.</span>
           </h1>
           <p className={styles.subtitle}>
-            A safe, sandboxed environment for practicing Python & JavaScript. Get instant test outcomes and structured AI qualitative feedback on complexity and style.
+            A safe, sandboxed environment for practicing C++, Python & JavaScript. Get instant test outcomes and structured AI qualitative feedback on complexity and style.
           </p>
         </section>
 
@@ -62,7 +71,7 @@ export default function HomePage() {
         <div className={styles.sectionHeader}>
           <h2>
             <Terminal size={18} className={styles.sectionIcon} />
-            Coding Challenges
+            Coding Challenges ({problems.length})
           </h2>
         </div>
 
@@ -83,17 +92,18 @@ export default function HomePage() {
               try {
                 tcCount = prob.testCases ? JSON.parse(prob.testCases).length : 0;
               } catch (e) {
-                console.error("Failed to parse testCases on list card:", e);
+                console.error("Failed to parse testCases:", e);
               }
 
-              // Custom code block preview depending on problem to make it look highly tailored and human-made
+              const isSolved = solvedProblemIds.has(prob.id);
+
               let codePreview = '';
               if (prob.id === 'problem-two-sum') {
                 codePreview = `def twoSum(nums, target):\n    seen = {}\n    for i, num in enumerate(nums):\n        # ...`;
               } else if (prob.id === 'problem-palindrome-number') {
-                codePreview = `function isPalindrome(x) {\n  if (x < 0) return false;\n  let rev = 0, temp = x;\n  # ...`;
+                codePreview = `function isPalindrome(x) {\n  if (x < 0) return false;\n  let rev = 0;\n  # ...`;
               } else {
-                codePreview = `def reverseString(s):\n    left, right = 0, len(s)-1\n    while left < right:\n        # ...`;
+                codePreview = `int main() {\n    vector<int> nums;\n    // C++ Solution\n  # ...`;
               }
 
               return (
@@ -104,17 +114,20 @@ export default function HomePage() {
                         {prob.difficulty}
                       </span>
                       <div className={styles.langTagsRow}>
+                        <span className={styles.langTag}>CPP</span>
                         <span className={styles.langTag}>JS</span>
                         <span className={styles.langTag}>Python</span>
                       </div>
                     </div>
 
-                    <h3 className={styles.problemTitle}>{prob.title}</h3>
+                    <h3 className={styles.problemTitle}>
+                      {isSolved && <CheckCircle2 size={16} className="txtSuccess" style={{ display: 'inline', marginRight: '6px' }} />}
+                      {prob.title}
+                    </h3>
                     <p className={styles.problemDesc}>
                       {prob.description.split('\n')[0].replace(/[`*]/g, '')}
                     </p>
 
-                    {/* Integrated Syntax Highlighted Mock Code Block */}
                     <div className={styles.codeSnippetBlock}>
                       <pre><code>{codePreview}</code></pre>
                     </div>
@@ -136,72 +149,71 @@ export default function HomePage() {
         )}
       </div>
 
-      {/* RIGHT COLUMN: Sidebar Stats & Activity (SaaS Look) */}
+      {/* RIGHT COLUMN: Dynamic Live Sidebar */}
       <aside className={styles.sidebar}>
-        {/* Sandbox Metrics Panel */}
+        {/* User Progress Analytics Widget */}
         <div className={`${styles.sidebarWidget} glass-card`}>
           <div className={styles.widgetHeader}>
-            <Shield size={16} className={styles.widgetIcon} />
-            <h3>Sandbox Environment</h3>
+            <Award size={16} className={styles.widgetIcon} />
+            <h3>Session Progress</h3>
           </div>
           <div className={styles.metricsList}>
             <div className={styles.metricItem}>
-              <span>Status</span>
-              <span className={styles.metricValSuccess}>ONLINE</span>
+              <span>Active User</span>
+              <span className={styles.metricVal}>{activeUser?.username || 'ADITYA SING'}</span>
             </div>
             <div className={styles.metricItem}>
-              <span>Timeout Limit</span>
-              <span className={styles.metricVal}>2.0s</span>
+              <span>Student ID</span>
+              <span className={styles.metricVal}>23U03031</span>
             </div>
             <div className={styles.metricItem}>
-              <span>Compiler Checks</span>
-              <span className={styles.metricVal}>14 active</span>
+              <span>Problems Solved</span>
+              <span className={styles.metricValSuccess}>{solvedCount} / {problems.length}</span>
             </div>
             <div className={styles.metricItem}>
-              <span>Gemini Engine</span>
-              <span className={styles.metricVal}>gemini-2.5-flash</span>
-            </div>
-            <div className={styles.metricItem}>
-              <span>Injection Guard</span>
-              <span className={styles.metricValSuccess}>SHIELD ACTIVE</span>
+              <span>Completion Rate</span>
+              <span className={styles.metricVal}>{completionPercentage}%</span>
             </div>
           </div>
         </div>
 
-        {/* Live Activity Stream Panel */}
+        {/* Live Database Activity Stream */}
         <div className={`${styles.sidebarWidget} glass-card`}>
           <div className={styles.widgetHeader}>
             <Activity size={16} className={styles.widgetIcon} style={{ color: 'var(--accent-purple)' }} />
-            <h3>Activity Stream</h3>
+            <h3>Live Activity Stream</h3>
           </div>
           <div className={styles.activityList}>
-            {activities.map((act, index) => (
-              <div key={index} className={styles.activityItem}>
-                <div className={styles.activityIndicator}>
-                  {act.status === 'PASSED' ? (
-                    <span className={`${styles.statusDot} ${styles.dotPassed}`}></span>
-                  ) : act.status === 'FAILED' ? (
-                    <span className={`${styles.statusDot} ${styles.dotFailed}`}></span>
-                  ) : (
-                    <span className={`${styles.statusDot} ${styles.dotNeutral}`}></span>
-                  )}
-                </div>
-                <div className={styles.activityContent}>
-                  <p className={styles.activityText}>
-                    <strong>{act.user}</strong> {act.action}{' '}
-                    <span className={styles.activityTarget}>{act.target}</span>
-                  </p>
-                  <div className={styles.activityMeta}>
-                    <span>{act.time}</span>
-                    {act.score !== null && (
-                      <span className={act.score === 100 ? styles.txtSuccess : styles.txtDanger}>
-                        ({act.score}%)
+            {submissions.slice(0, 5).map((sub) => {
+              const username = sub.user?.username || 'student';
+              const problemTitle = sub.problem?.title || 'Challenge';
+              const passed = sub.score === 100;
+
+              return (
+                <div key={sub.id} className={styles.activityItem}>
+                  <div className={styles.activityIndicator}>
+                    <span className={`${styles.statusDot} ${passed ? styles.dotPassed : styles.dotFailed}`}></span>
+                  </div>
+                  <div className={styles.activityContent}>
+                    <p className={styles.activityText}>
+                      <strong>{username}</strong> submitted{' '}
+                      <span className={styles.activityTarget}>{problemTitle}</span>
+                    </p>
+                    <div className={styles.activityMeta}>
+                      <span>{new Date(sub.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                      <span className={passed ? styles.txtSuccess : styles.txtDanger}>
+                        ({sub.score}%)
                       </span>
-                    )}
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
+            {submissions.length === 0 && (
+              <p className="txtSecondary" style={{ fontSize: '0.85rem', textAlign: 'center', padding: '12px 0' }}>
+                No submissions recorded yet. Run code to populate stream!
+              </p>
+            )}
           </div>
         </div>
       </aside>
