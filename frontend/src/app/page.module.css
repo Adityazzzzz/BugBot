@@ -1,8 +1,8 @@
 .dashboardContainer {
   display: grid;
-  grid-template-columns: 1fr 340px;
+  grid-template-columns: 1fr 320px;
   gap: 32px;
-  padding-bottom: 120px;
+  padding-bottom: 80px;
   align-items: start;
 }
 
@@ -12,158 +12,98 @@
 }
 
 .hero {
-  max-width: 100%;
-  margin: 20px 0 50px 0;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
+  margin: 0 0 40px 0;
 }
 
-/* Pulsing Status Badge */
 .topBadge {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  background: rgba(6, 182, 212, 0.05);
-  border: 1px solid rgba(6, 182, 212, 0.15);
-  padding: 6px 14px;
-  border-radius: 9999px;
-  font-size: 0.8rem;
-  font-weight: 700;
+  background: rgba(59, 130, 246, 0.1);
   color: var(--accent-cyan);
+  padding: 4px 12px;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 600;
   text-transform: uppercase;
-  letter-spacing: 0.05em;
-  margin-bottom: 20px;
-}
-
-.badgePulse {
-  width: 6px;
-  height: 6px;
-  background: var(--accent-cyan);
-  border-radius: 50%;
-  animation: pulseGlow 1.8s infinite;
-  box-shadow: 0 0 8px var(--accent-cyan);
-}
-
-@keyframes pulseGlow {
-  0% { transform: scale(0.9); opacity: 0.5; }
-  50% { transform: scale(1.4); opacity: 1; box-shadow: 0 0 12px var(--accent-cyan); }
-  100% { transform: scale(0.9); opacity: 0.5; }
+  margin-bottom: 16px;
 }
 
 .title {
-  font-size: 3.2rem;
-  line-height: 1.15;
-  margin-bottom: 20px;
-  font-weight: 800;
-  color: #ffffff;
-  letter-spacing: -0.04em;
-  text-align: left;
+  font-size: 2.8rem;
+  line-height: 1.2;
+  margin-bottom: 16px;
+  font-weight: 700;
+  letter-spacing: -0.03em;
 }
 
 .glowText {
   background: var(--accent-gradient);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
-  display: inline-block;
 }
 
 .subtitle {
-  font-size: 1.15rem;
+  font-size: 1.05rem;
   color: var(--text-secondary);
-  line-height: 1.6;
-  max-width: 700px;
-  text-align: left;
+  max-width: 600px;
 }
 
-/* Directory Header */
 .sectionHeader {
   display: flex;
   justify-content: space-between;
   align-items: center;
   margin-bottom: 24px;
   border-bottom: 1px solid var(--border-color);
-  padding-bottom: 16px;
+  padding-bottom: 12px;
 }
 
 .sectionHeader h2 {
-  font-size: 1.4rem;
+  font-size: 1.25rem;
   display: flex;
   align-items: center;
-  gap: 12px;
-  font-weight: 700;
+  gap: 10px;
 }
 
-.sectionIcon {
-  color: var(--accent-cyan);
-}
-
-.problemCount {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  color: var(--text-secondary);
-  font-size: 0.85rem;
-  font-weight: 600;
-  background: rgba(255, 255, 255, 0.03);
-  padding: 6px 12px;
-  border-radius: var(--radius-sm);
-  border: 1px solid var(--border-color);
-}
-
-/* Bento Grid */
 .bentoGrid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
-  gap: 24px;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 20px;
 }
 
 .bentoCard {
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  height: 380px;
-  padding: 24px;
-}
-
-.bentoCardBody {
-  display: flex;
-  flex-direction: column;
-  flex-grow: 1;
+  height: 340px;
+  padding: 20px;
 }
 
 .cardHeader {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 16px;
+  margin-bottom: 12px;
 }
 
 .langTagsRow {
   display: flex;
-  gap: 6px;
+  gap: 8px;
 }
 
 .langTag {
   font-family: var(--font-mono);
-  font-size: 0.7rem;
-  font-weight: 600;
-  color: var(--text-secondary);
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid var(--border-color);
-  padding: 2px 6px;
-  border-radius: 4px;
+  font-size: 0.75rem;
+  color: var(--text-muted);
 }
 
 .problemTitle {
-  font-size: 1.3rem;
+  font-size: 1.2rem;
   margin-bottom: 8px;
-  color: var(--text-primary);
-  font-weight: 700;
 }
 
 .problemDesc {
-  font-size: 0.88rem;
+  font-size: 0.9rem;
   color: var(--text-secondary);
   line-height: 1.5;
   display: -webkit-box;
@@ -173,144 +113,60 @@
   margin-bottom: 16px;
 }
 
-/* Syntax Highlighted Mock Code Block */
 .codeSnippetBlock {
-  background: #090a10;
-  border: 1px solid rgba(255, 255, 255, 0.03);
+  background: #000000;
+  border: 1px solid var(--border-color);
   border-radius: var(--radius-sm);
   padding: 12px;
   font-family: var(--font-mono);
-  font-size: 0.78rem;
-  color: #c8d3f5;
+  font-size: 0.8rem;
+  color: #a1a1aa;
+  height: 90px;
   overflow: hidden;
-  height: 110px;
   position: relative;
-  margin-bottom: 16px;
-}
-
-.codeSnippetBlock::after {
-  content: '';
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  width: 100%;
-  height: 40%;
-  background: linear-gradient(to top, #090a10, transparent);
-  pointer-events: none;
-}
-
-.codeSnippetBlock pre {
-  margin: 0;
-  white-space: pre-wrap;
-  line-height: 1.4;
+  margin-bottom: auto;
 }
 
 .cardFooter {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  border-top: 1px solid rgba(255, 255, 255, 0.03);
+  border-top: 1px solid var(--border-color);
   padding-top: 16px;
+  margin-top: 16px;
 }
 
 .tcLabel {
-  font-size: 0.82rem;
+  font-size: 0.85rem;
   color: var(--text-secondary);
 }
 
-.tcLabel strong {
-  color: var(--text-primary);
-}
-
-/* Loading States */
-.loaderWrapper {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 100px 0;
-  gap: 20px;
-  color: var(--text-secondary);
-}
-
-.spinner {
-  width: 40px;
-  height: 40px;
-  border: 3px solid rgba(6, 182, 212, 0.08);
-  border-bottom-color: var(--accent-cyan);
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
-}
-
-@keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
-}
-
-/* Error Card */
-.errorCard {
-  background: rgba(244, 63, 94, 0.02);
-  border: 1px solid rgba(244, 63, 94, 0.12);
-  padding: 40px;
-  border-radius: var(--radius-md);
-  text-align: center;
-  color: #fda4af;
-  box-shadow: var(--shadow-md);
-}
-
-.errorMsg {
-  font-size: 1.2rem;
-  font-weight: 700;
-  margin-bottom: 8px;
-}
-
-.errorHint {
-  font-size: 0.88rem;
-  color: var(--text-secondary);
-}
-
-.errorHint code {
-  font-family: var(--font-mono);
-  background: rgba(244, 63, 94, 0.08);
-  padding: 2px 6px;
-  border-radius: 4px;
-  color: #fda4af;
-}
-
-/* SIDEBAR TELEMETRY PANELS */
 .sidebar {
   display: flex;
   flex-direction: column;
-  gap: 24px;
+  gap: 20px;
   position: sticky;
-  top: 94px;
+  top: 90px;
 }
 
 .sidebarWidget {
-  padding: 24px;
-  display: flex;
-  flex-direction: column;
+  padding: 20px;
 }
 
 .widgetHeader {
   display: flex;
   align-items: center;
   gap: 10px;
-  margin-bottom: 18px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+  margin-bottom: 16px;
+  border-bottom: 1px solid var(--border-color);
   padding-bottom: 12px;
 }
 
 .widgetHeader h3 {
-  font-size: 0.95rem;
-  font-weight: 700;
+  font-size: 0.9rem;
   text-transform: uppercase;
+  color: var(--text-secondary);
   letter-spacing: 0.05em;
-  color: var(--text-primary);
-}
-
-.widgetIcon {
-  color: var(--accent-cyan);
 }
 
 .metricsList {
@@ -328,18 +184,14 @@
 
 .metricVal {
   color: var(--text-primary);
-  font-weight: 600;
-  font-family: var(--font-mono);
+  font-weight: 500;
 }
 
 .metricValSuccess {
   color: var(--color-success);
-  font-weight: 700;
-  font-size: 0.8rem;
-  letter-spacing: 0.03em;
+  font-weight: 600;
 }
 
-/* Activity stream items */
 .activityList {
   display: flex;
   flex-direction: column;
@@ -348,45 +200,14 @@
 
 .activityItem {
   display: flex;
-  gap: 12px;
-  align-items: flex-start;
-}
-
-.activityIndicator {
-  padding-top: 5px;
-}
-
-.statusDot {
-  display: block;
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-}
-
-.dotPassed {
-  background: var(--color-success);
-  box-shadow: 0 0 8px var(--color-success);
-}
-
-.dotFailed {
-  background: var(--color-danger);
-  box-shadow: 0 0 8px var(--color-danger);
-}
-
-.dotNeutral {
-  background: var(--accent-purple);
-  box-shadow: 0 0 8px var(--accent-purple);
-}
-
-.activityContent {
-  display: flex;
   flex-direction: column;
-  line-height: 1.4;
+  gap: 4px;
 }
 
 .activityText {
-  font-size: 0.82rem;
+  font-size: 0.85rem;
   color: var(--text-secondary);
+  line-height: 1.4;
 }
 
 .activityText strong {
@@ -394,26 +215,10 @@
 }
 
 .activityTarget {
-  color: #c084fc;
+  color: var(--accent-cyan);
 }
 
 .activityMeta {
-  display: flex;
-  gap: 8px;
   font-size: 0.75rem;
   color: var(--text-muted);
-  margin-top: 2px;
-}
-
-.txtSuccess { color: var(--color-success); font-weight: 600; }
-.txtDanger { color: var(--color-danger); font-weight: 600; }
-
-/* Responsive adjustments */
-@media (max-width: 1024px) {
-  .dashboardContainer {
-    grid-template-columns: 1fr;
-  }
-  .sidebar {
-    position: static;
-  }
 }
