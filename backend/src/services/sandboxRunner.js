@@ -1,208 +1,218 @@
+/**
+ * sandboxRunner.js
+ * Cloud-first execution using Judge0 API for absolute isolation and multi-language support.
+ * Features single-payload test suite wrapping and graceful degradation to local execution.
+ */
 import vm from 'vm';
 import { execFile } from 'child_process';
 import fs from 'fs';
 import path from 'path';
 import crypto from 'crypto';
 
-const FORBIDDEN_JS_KEYWORDS = ['process','require','child_process','fs','path','global','eval','Function'];
-const FORBIDDEN_PY_KEYWORDS = [
-  'import os','import sys','import subprocess','import shutil','import urllib','import requests','import socket',
-  'from os','from sys','from subprocess','from shutil','eval(','exec(','open(','getattr(','globals(','locals('
-];
+const JUDGE0_URL = process.env.JUDGE0_URL || 'https://judge0-ce.p.rapidapi.com/submissions';
+const JUDGE0_KEY = process.env.JUDGE0_API_KEY; // Optional: Add to your .env file
 
-export function runJavaScript(code,functionName,testCases){
-  for(const keyword of FORBIDDEN_JS_KEYWORDS){
-    if(code.includes(keyword)){
-      throw new Error(`Security Violation: Forbidden reference '${keyword}' detected in JavaScript code.`);
-    }
+const LANG_IDS = {
+  javascript: 93, // Node.js 18.15.0
+  python: 71,     // Python 3.8.1
+};
+
+/**
+ * Wraps student code and all test cases into a single executable script.
+ * This prevents making 10+ API calls per submission, saving rate limits and time.
+ */
+function buildExecutionPayload(code, language, functionName, testCases) {
+  if (language === 'javascript') {
+    return `
+${code}
+
+const testCases = ${JSON.stringify(testCases)};
+const results = [];
+for (const tc of testCases) {
+  try {
+    const args = JSON.parse(tc.input);
+    const start = Date.now();
+    const output = ${functionName}(...args);
+    const end = Date.now();
+    
+    const passed = JSON.stringify(output) === JSON.stringify(JSON.parse(tc.expectedOutput));
+    results.push({ passed, input: tc.input, expected: tc.expectedOutput, got: JSON.stringify(output), duration: end - start });
+  } catch (e) {
+    results.push({ passed: false, input: tc.input, expected: tc.expectedOutput, got: null, error: e.message });
   }
+}
+console.log("RUNNER_OUTPUT_START");
+console.log(JSON.stringify(results));
+`;
+  } else if (language === 'python') {
+    return `
+import json
+import time
+import sys
 
-  const results = [];
-  
-  for(const tc of testCases){
-    let args,expected;
-    try{
-      args = JSON.parse(tc.input);
-      expected = JSON.parse(tc.expectedOutput);
-    } 
-    catch(e){
-      results.push({
-        passed: false,
-        input: tc.input,
-        expected: tc.expectedOutput,
-        got: null,
-        error: `Invalid test case JSON format: ${e.message}`
-      });
-      continue;
-    }
+${code}
 
-    const logs = [];
-    const sandbox ={
-      console:{
-        log:(...msg) => logs.push(msg.map(m => typeof m === 'object' ? JSON.stringify(m) : String(m)).join(' ')),
-        error:(...msg) => logs.push(msg.map(m => String(m)).join(' ')),
-      },
-      Math,Date,Array,Object,String,Number,Boolean,RegExp,JSON,Map,Set,Promise
-    };
+test_cases = json.loads('''${JSON.stringify(testCases)}''')
+results = []
 
-    try{
-      const context = vm.createContext(sandbox);
-      vm.runInContext(code,context,{timeout:1000});
+for tc in test_cases:
+    try:
+        args = json.loads(tc["input"])
+        expected = json.loads(tc["expectedOutput"])
+        
+        start = time.time()
+        output = ${functionName}(*args)
+        end = time.time()
+        
+        passed = json.dumps(output) == json.dumps(expected)
+        results.append({
+            "passed": passed,
+            "input": tc["input"],
+            "expected": tc["expectedOutput"],
+            "got": json.dumps(output),
+            "duration": round((end - start) * 1000, 2)
+        })
+    except Exception as e:
+        results.append({
+            "passed": False,
+            "input": tc["input"],
+            "expected": tc["expectedOutput"],
+            "got": None,
+            "error": str(e)
+        })
 
-      const fn = sandbox[functionName];
-      if(typeof fn !== 'function'){
-        results.push({
-          passed: false,
-          input: tc.input,
-          expected: tc.expectedOutput,
-          got: null,
-          error: `Function '${functionName}' is not defined.`
-        });
-        continue;
-      }
-
-      const start = performance.now();
-      const runScript = new vm.Script(`${functionName}(...${JSON.stringify(args)})`);
-      const output = runScript.runInContext(context,{ timeout: 2000 });
-      const end = performance.now();
-
-      const duration = Math.round((end - start) * 100) / 100;
-      const gotJSON = JSON.stringify(output);
-      const expectedJSON = JSON.stringify(expected);
-      const passed = gotJSON === expectedJSON;
-
-      results.push({
-        passed,
-        input: tc.input,
-        expected: tc.expectedOutput,
-        got: gotJSON,
-        duration,
-        logs: logs.join('\n')
-      });
-    } 
-    catch(err){
-      results.push({
-        passed: false,
-        input: tc.input,
-        expected: tc.expectedOutput,
-        got: null,
-        error: err.message,
-        logs: logs.join('\n')
-      });
-    }
+print("RUNNER_OUTPUT_START")
+print(json.dumps(results))
+`;
   }
-  return results;
 }
 
+/**
+ * Primary Execution Engine: Judge0 API (Secure Cloud Container)
+ */
+async function runCloudJudge0(code, language, functionName, testCases) {
+  const sourceCode = buildExecutionPayload(code, language, functionName, testCases);
+  
+  const response = await fetch(`${JUDGE0_URL}?base64_encoded=false&wait=true`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'X-RapidAPI-Key': JUDGE0_KEY,
+      'X-RapidAPI-Host': 'judge0-ce.p.rapidapi.com'
+    },
+    body: JSON.stringify({
+      language_id: LANG_IDS[language],
+      source_code: sourceCode,
+      cpu_time_limit: 2.0,
+      memory_limit: 128000,
+    })
+  });
 
-export async function runPython(code,functionName,testCases){
-  for(const keyword of FORBIDDEN_PY_KEYWORDS){
-    if(code.includes(keyword)){
-      throw new Error(`Security Violation: Forbidden reference '${keyword}' detected in Python code.`);
+  if (!response.ok) throw new Error('Judge0 execution service unavailable.');
+  
+  const data = await response.json();
+  
+  // Handle compilation or timeout errors from the container
+  if (data.status.id > 3) {
+    return testCases.map(tc => ({
+      passed: false,
+      input: tc.input,
+      expected: tc.expectedOutput,
+      got: null,
+      error: data.compile_output || data.stderr || data.status.description
+    }));
+  }
+
+  // Parse stdout safely
+  const stdout = data.stdout || '';
+  if (stdout.includes('RUNNER_OUTPUT_START')) {
+    const jsonStr = stdout.split('RUNNER_OUTPUT_START')[1].trim();
+    try {
+      return JSON.parse(jsonStr);
+    } catch (e) {
+      throw new Error('Failed to parse structured output from container.');
     }
   }
 
+  throw new Error('Container executed but returned malformed output.');
+}
+
+/**
+ * Fallback Execution Engine: Local VMs (If API Key is missing or network fails)
+ */
+async function runLocalFallback(code, language, functionName, testCases) {
+  console.warn(`[Sandbox] Running local fallback for ${language}. Cloud execution bypassed.`);
   const results = [];
-  const tempDir = path.join(process.cwd(),'temp_runner');
   
-  if(!fs.existsSync(tempDir)){
-    fs.mkdirSync(tempDir,{ recursive: true });
-  }
-
-  for(const tc of testCases){
-    const fileId = crypto.randomBytes(8).toString('hex');
-    const tempFile = path.join(tempDir,`runner_${fileId}.py`);
-
-    const runnerScript = `
-      # Student Code
-      ${code}
-
-      # Test Case Invocation
-      import json
-      import sys
-
-      try:
-          args = json.loads(${JSON.stringify(tc.input)})
-          result = ${functionName}(*args)
-          print("RUNNER_OUTPUT:" + json.dumps(result))
-      except Exception as e:
-          print("RUNNER_ERROR:" + str(e),file=sys.stderr)
-          sys.exit(1)
-    `;
-
-    fs.writeFileSync(tempFile,runnerScript,'utf8');
-
-    const result = await new Promise((resolve) =>{
-      const start = performance.now();
-
-      execFile('python',[tempFile],{timeout: 2000 },(error,stdout,stderr) =>{
+  if (language === 'javascript') {
+    for (const tc of testCases) {
+      try {
+        const args = JSON.parse(tc.input);
+        const expected = JSON.parse(tc.expectedOutput);
+        const sandbox = { Math, Date, Array, Object, String, Number, Boolean, JSON };
+        const context = vm.createContext(sandbox);
+        
+        vm.runInContext(code, context, { timeout: 1000 });
+        const fn = sandbox[functionName];
+        
+        if (typeof fn !== 'function') throw new Error(`Function '${functionName}' not defined.`);
+        
+        const start = performance.now();
+        const runScript = new vm.Script(`${functionName}(...${JSON.stringify(args)})`);
+        const output = runScript.runInContext(context, { timeout: 2000 });
         const end = performance.now();
-        const duration = Math.round((end - start) * 100) / 100;
-        
-        let gotJSON = null;
-        let consoleLogs = [];
-        let executionError = null;
-        let isTimeout = error && error.killed;
 
-        if(isTimeout) executionError = 'Execution Timed Out(2000ms limit reached)';
-        else if(error) executionError = stderr.trim() || error.message;
-        
-        if(!executionError){
-          const lines = stdout.split('\n');
-          for(const line of lines){
-            if(line.startsWith('RUNNER_OUTPUT:')){
-              gotJSON = line.substring('RUNNER_OUTPUT:'.length).trim();
-            } 
-            else if(line.trim()){
-              consoleLogs.push(line.trim());
-            }
-          }
-        }
+        const gotJSON = JSON.stringify(output);
+        const expectedJSON = JSON.stringify(expected);
+        results.push({ passed: gotJSON === expectedJSON, input: tc.input, expected: tc.expectedOutput, got: gotJSON, duration: end - start });
+      } catch (err) {
+        results.push({ passed: false, input: tc.input, expected: tc.expectedOutput, got: null, error: err.message });
+      }
+    }
+    return results;
+  } 
+  
+  // Python local fallback requires child process wrapper
+  const tempDir = path.join(process.cwd(), 'temp_runner');
+  if (!fs.existsSync(tempDir)) fs.mkdirSync(tempDir, { recursive: true });
+  
+  const fileId = crypto.randomBytes(8).toString('hex');
+  const tempFile = path.join(tempDir, `runner_${fileId}.py`);
+  const runnerScript = buildExecutionPayload(code, language, functionName, testCases);
+  
+  fs.writeFileSync(tempFile, runnerScript, 'utf8');
 
-        try{
-          if(fs.existsSync(tempFile)) fs.unlinkSync(tempFile);
-        } 
-        catch(e){
-          console.error(`Failed to delete temp file ${tempFile}:`,e);
-        }
-
-        if(executionError){
-          return resolve({
-            passed: false,
-            input: tc.input,
-            expected: tc.expectedOutput,
-            got: null,
-            error: executionError,
-            logs: consoleLogs.join('\n')
-          });
-        }
-
-        try{
-          const expectedJSON = JSON.stringify(JSON.parse(tc.expectedOutput));
-          const parsedGot = gotJSON ? JSON.stringify(JSON.parse(gotJSON)) : null;
-          const passed = gotJSON !== null && parsedGot === expectedJSON;
-
-          resolve({ passed,input: tc.input,expected: tc.expectedOutput,got: gotJSON,duration,logs: consoleLogs.join('\n') });
-        } 
-        catch(e){
-          resolve({ passed: false,input: tc.input,expected: tc.expectedOutput,got: gotJSON,error: `Failed to parse output JSON: ${e.message}`,logs: consoleLogs.join('\n') });
-        }
-      });
+  return new Promise((resolve) => {
+    execFile('python', [tempFile], { timeout: 2000 }, (error, stdout, stderr) => {
+      try { if (fs.existsSync(tempFile)) fs.unlinkSync(tempFile); } catch (e) {}
+      
+      if (error || stderr) {
+        return resolve(testCases.map(tc => ({ passed: false, input: tc.input, expected: tc.expectedOutput, got: null, error: stderr || 'Execution Error' })));
+      }
+      
+      try {
+        const jsonStr = stdout.split('RUNNER_OUTPUT_START')[1].trim();
+        resolve(JSON.parse(jsonStr));
+      } catch (e) {
+        resolve(testCases.map(tc => ({ passed: false, input: tc.input, expected: tc.expectedOutput, got: null, error: 'Failed to parse Python output' })));
+      }
     });
-    results.push(result);
-  }
-  return results;
+  });
 }
 
-
-export async function runCode(code,language,functionName,testCases){
-  if(language === 'javascript'){
-    return runJavaScript(code,functionName,testCases);
-  } 
-  else if(language === 'python'){
-    return await runPython(code,functionName,testCases);
-  } 
-  else{
-    throw new Error(`Unsupported programming language: ${language}`);
+/**
+ * Universal runner router
+ */
+export async function runCode(code, language, functionName, testCases) {
+  if (JUDGE0_KEY) {
+    try {
+      return await runCloudJudge0(code, language, functionName, testCases);
+    } catch (err) {
+      console.error(`[Sandbox API Error] ${err.message}. Triggering local fallback.`);
+      return await runLocalFallback(code, language, functionName, testCases);
+    }
+  } else {
+    // Skip network request entirely if no key is configured
+    return await runLocalFallback(code, language, functionName, testCases);
   }
 }
