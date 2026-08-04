@@ -1,17 +1,11 @@
 'use client';
 
-/**
- * WorkspacePage component.
- * Integrates Monaco Editor with sandboxed run/submit routes on the backend.
- * Features coding templates, test case console reports, qualitative AI feedback sheets,
- * and inline doubt board postings for students.
- */
 import React, { useEffect, useState, useRef } from 'react';
 import Editor from '@monaco-editor/react';
 import { useUser } from '../../context/UserContext';
 import { 
-  Play, Send, HelpCircle, Code2, AlertTriangle, 
-  CheckCircle, ChevronRight, X, User, MessageSquareCode
+  Play, Send, HelpCircle, AlertTriangle, 
+  CheckCircle, X, User, MessageSquareCode
 } from 'lucide-react';
 import styles from './workspace.module.css';
 
@@ -19,27 +13,22 @@ export default function WorkspacePage({ params }) {
   const { problemId } = params;
   const { activeUser } = useUser();
 
-  // Problem State
   const [problem, setProblem] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // Editor State
   const [language, setLanguage] = useState('javascript');
   const [code, setCode] = useState('');
   const codeCache = useRef({ javascript: '', python: '' });
 
-  // UI Tabs State
-  const [leftTab, setLeftTab] = useState('desc'); // 'desc' or 'doubts'
-  const [consoleTab, setConsoleTab] = useState('results'); // 'results' or 'ai'
+  const [leftTab, setLeftTab] = useState('desc'); 
+  const [consoleTab, setConsoleTab] = useState('results'); 
 
-  // Run/Submit States
   const [isRunning, setIsRunning] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [consoleOutput, setConsoleOutput] = useState(null);
   const [aiFeedback, setAiFeedback] = useState(null);
 
-  // Doubt Board States for this problem
   const [doubts, setDoubts] = useState([]);
   const [showDoubtModal, setShowDoubtModal] = useState(false);
   const [newDoubtTitle, setNewDoubtTitle] = useState('');
@@ -47,7 +36,6 @@ export default function WorkspacePage({ params }) {
   const [doubtError, setDoubtError] = useState('');
   const [isPostingDoubt, setIsPostingDoubt] = useState(false);
 
-  // Fetch Problem Details
   useEffect(() => {
     async function fetchProblem() {
       try {
@@ -56,7 +44,6 @@ export default function WorkspacePage({ params }) {
         const data = await res.json();
         setProblem(data);
         
-        // Initialize boilerplates
         codeCache.current.javascript = data.boilerplateJs;
         codeCache.current.python = data.boilerplatePy;
         setCode(language === 'javascript' ? data.boilerplateJs : data.boilerplatePy);
@@ -66,12 +53,10 @@ export default function WorkspacePage({ params }) {
         setLoading(false);
       }
     }
-    
     fetchProblem();
     fetchProblemDoubts();
   }, [problemId]);
 
-  // Fetch Doubt board threads for this problem
   async function fetchProblemDoubts() {
     try {
       const res = await fetch(`/api/doubts/problem/${problemId}`);
@@ -84,13 +69,9 @@ export default function WorkspacePage({ params }) {
     }
   }
 
-  // Handle language switch
   const handleLanguageChange = (newLang) => {
-    // Cache current code before switching
     codeCache.current[language] = code;
     setLanguage(newLang);
-    
-    // Load from cache or defaults
     const cached = codeCache.current[newLang];
     if (cached) {
       setCode(cached);
@@ -99,7 +80,6 @@ export default function WorkspacePage({ params }) {
     }
   };
 
-  // Run Code logic (against sample cases)
   const handleRunCode = async () => {
     setIsRunning(true);
     setConsoleTab('results');
@@ -115,21 +95,14 @@ export default function WorkspacePage({ params }) {
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Execution failed');
       
-      setConsoleOutput({
-        type: 'run',
-        results: data.results
-      });
+      setConsoleOutput({ type: 'run', results: data.results });
     } catch (err) {
-      setConsoleOutput({
-        type: 'error',
-        message: err.message
-      });
+      setConsoleOutput({ type: 'error', message: err.message });
     } finally {
       setIsRunning(false);
     }
   };
 
-  // Submit Code logic (grade all, triggers AI qualitative review)
   const handleSubmitCode = async () => {
     if (!activeUser) {
       alert('Please select a user profile in the Navbar.');
@@ -145,41 +118,30 @@ export default function WorkspacePage({ params }) {
       const res = await fetch('/api/submissions/submit', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          problemId,
-          studentId: activeUser.id,
-          code,
-          language
-        })
+        body: JSON.stringify({ problemId, studentId: activeUser.id, code, language })
       });
 
       const data = await res.json();
-      if (!res.ok) {
-        throw new Error(data.error || 'Submission failed');
-      }
+      if (!res.ok) throw new Error(data.error || 'Submission failed');
 
+      // FIXED: Backend already parses results and aiFeedback now
       setConsoleOutput({
         type: 'submit',
         score: data.score,
         status: data.status,
-        results: data.results
+        results: data.results 
       });
 
       if (data.aiFeedback) {
-        const feedbackObj = data.aiFeedback;
-        setAiFeedback(feedbackObj);
+        setAiFeedback(data.aiFeedback);
       }
     } catch (err) {
-      setConsoleOutput({
-        type: 'error',
-        message: err.message
-      });
+      setConsoleOutput({ type: 'error', message: err.message });
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  // Post Doubt logic
   const handlePostDoubt = async (e) => {
     e.preventDefault();
     if (!newDoubtTitle.trim() || !newDoubtContent.trim()) {
@@ -203,15 +165,12 @@ export default function WorkspacePage({ params }) {
       });
 
       const data = await res.json();
-      if (!res.ok) {
-        throw new Error(data.error || 'Failed to submit doubt.');
-      }
+      if (!res.ok) throw new Error(data.error || 'Failed to submit doubt.');
 
-      // Success
       setShowDoubtModal(false);
       setNewDoubtTitle('');
       setNewDoubtContent('');
-      fetchProblemDoubts(); // refresh listing
+      fetchProblemDoubts();
       alert('Your doubt has been posted! An AI response has been generated and sent to the teacher queue for moderation.');
     } catch (err) {
       setDoubtError(err.message);
@@ -222,25 +181,24 @@ export default function WorkspacePage({ params }) {
 
   if (loading) {
     return (
-      <div className={styles.loadingScreen}>
+      <div className={styles.consoleLoading} style={{ height: '100vh' }}>
         <div className={styles.spinner}></div>
-        <p>Loading coding environment...</p>
+        <p>Loading workspace environment...</p>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className={`${styles.errorScreen} container`}>
+      <div className="container" style={{ paddingTop: '100px', textAlign: 'center' }}>
         <h2>Failed to initialize workspace</h2>
-        <p>{error}</p>
+        <p className="txtDanger">{error}</p>
       </div>
     );
   }
 
   return (
     <div className={styles.workspaceGrid}>
-      {/* LEFT COLUMN: Problem Details / Doubts Board */}
       <div className={`${styles.leftCol} glass-card`}>
         <div className={styles.tabHeaders}>
           <button 
@@ -268,29 +226,19 @@ export default function WorkspacePage({ params }) {
               </div>
               
               <div className={styles.descText}>
-                {/* Process description formatting simply for display */}
                 {problem.description.split('\n').map((line, idx) => {
-                  if (line.startsWith('###')) {
-                    return <h3 key={idx}>{line.replace('###', '').trim()}</h3>;
-                  }
-                  if (line.startsWith('**')) {
-                    return <p key={idx} className={styles.highlightLine}>{line.replace(/\*\*/g, '')}</p>;
-                  }
+                  if (line.startsWith('###')) return <h3 key={idx}>{line.replace('###', '').trim()}</h3>;
+                  if (line.startsWith('**')) return <p key={idx} className={styles.highlightLine}>{line.replace(/\*\*/g, '')}</p>;
                   return <p key={idx}>{line}</p>;
                 })}
               </div>
 
-              {/* Example Tests Block */}
               <div className={styles.sampleTestSection}>
                 <h3>Public Sample Cases</h3>
                 {JSON.parse(problem.testCases).slice(0, 1).map((tc, idx) => (
                   <div key={idx} className={styles.sampleCase}>
-                    <div className={styles.sampleLine}>
-                      <strong>Input:</strong> <code>{tc.input}</code>
-                    </div>
-                    <div className={styles.sampleLine}>
-                      <strong>Expected Output:</strong> <code>{tc.expectedOutput}</code>
-                    </div>
+                    <div><strong>Input:</strong> <code>{tc.input}</code></div>
+                    <div><strong>Expected Output:</strong> <code>{tc.expectedOutput}</code></div>
                   </div>
                 ))}
               </div>
@@ -309,7 +257,7 @@ export default function WorkspacePage({ params }) {
               <div className={styles.doubtsList}>
                 {doubts.length === 0 ? (
                   <div className={styles.emptyDoubts}>
-                    <HelpCircle size={40} className={styles.emptyIcon} />
+                    <HelpCircle size={40} className={styles.emptyIcon} style={{ margin: '0 auto' }} />
                     <p>No doubts posted yet for this problem.</p>
                     {activeUser?.role === 'STUDENT' && <p className={styles.emptySub}>Be the first to ask a question!</p>}
                   </div>
@@ -323,7 +271,6 @@ export default function WorkspacePage({ params }) {
                       <h4 className={styles.doubtTitle}>{d.title}</h4>
                       <p className={styles.doubtContentText}>{d.content}</p>
 
-                      {/* Display approved answers */}
                       <div className={styles.answersSection}>
                         {d.answers.length === 0 ? (
                           <div className={styles.pendingAnswerTag}>
@@ -354,9 +301,7 @@ export default function WorkspacePage({ params }) {
         </div>
       </div>
 
-      {/* RIGHT COLUMN: Code Editor & Console */}
       <div className={styles.rightCol}>
-        {/* Editor Controls */}
         <div className={`${styles.editorHeader} glass-card`}>
           <div className={styles.languageSelector}>
             <button 
@@ -374,26 +319,15 @@ export default function WorkspacePage({ params }) {
           </div>
 
           <div className={styles.editorActions}>
-            <button 
-              onClick={handleRunCode} 
-              disabled={isRunning || isSubmitting} 
-              className="btn btn-secondary"
-            >
-              <Play size={16} />
-              Run Code
+            <button onClick={handleRunCode} disabled={isRunning || isSubmitting} className="btn btn-secondary">
+              <Play size={14} /> Run Code
             </button>
-            <button 
-              onClick={handleSubmitCode} 
-              disabled={isRunning || isSubmitting} 
-              className="btn btn-primary"
-            >
-              <Send size={16} />
-              Submit Solution
+            <button onClick={handleSubmitCode} disabled={isRunning || isSubmitting} className="btn btn-primary">
+              <Send size={14} /> Submit Solution
             </button>
           </div>
         </div>
 
-        {/* Monaco Editor Component styled as a Mac terminal frame */}
         <div className={styles.editorFrame}>
           <div className={styles.frameHeader}>
             <div className="window-controls">
@@ -424,7 +358,6 @@ export default function WorkspacePage({ params }) {
           </div>
         </div>
 
-        {/* CONSOLE OUTPUT PANEL */}
         <div className={`${styles.consolePanel} glass-card`}>
           <div className={styles.consoleHeaders}>
             <button 
@@ -456,11 +389,11 @@ export default function WorkspacePage({ params }) {
                 ) : consoleOutput.submitting ? (
                   <div className={styles.consoleLoading}>
                     <div className={styles.spinner}></div>
-                    <p>Submitting, running full grading suite and requesting AI qualitative analysis...</p>
+                    <p>Submitting, running full grading suite and requesting AI analysis...</p>
                   </div>
                 ) : consoleOutput.type === 'error' ? (
                   <div className={styles.runError}>
-                    <AlertTriangle size={24} />
+                    <AlertTriangle size={24} style={{ flexShrink: 0 }} />
                     <div>
                       <strong>Failed to execute solution:</strong>
                       <pre>{consoleOutput.message}</pre>
@@ -487,7 +420,6 @@ export default function WorkspacePage({ params }) {
                               {res.passed ? 'PASSED' : 'FAILED'}
                             </span>
                           </div>
-                          
                           <div className={styles.testItemDetails}>
                             <div><strong>Input:</strong> <code>{res.input}</code></div>
                             <div><strong>Expected:</strong> <code>{res.expected}</code></div>
@@ -507,7 +439,6 @@ export default function WorkspacePage({ params }) {
                 )}
               </div>
             ) : (
-              // AI feedback display
               <div className={styles.aiTabContent}>
                 <div className={styles.aiStatsRow}>
                   <div className={styles.aiStatCard}>
@@ -527,25 +458,17 @@ export default function WorkspacePage({ params }) {
                 <div className={styles.aiFeedbackGrid}>
                   <div className={styles.feedbackSection}>
                     <h4 className={styles.txtSuccess}>Strengths</h4>
-                    <ul>
-                      {aiFeedback.strengths.map((str, idx) => <li key={idx}>{str}</li>)}
-                    </ul>
+                    <ul>{aiFeedback.strengths.map((str, idx) => <li key={idx}>{str}</li>)}</ul>
                   </div>
-
                   {aiFeedback.bugs && aiFeedback.bugs.length > 0 && (
                     <div className={styles.feedbackSection}>
                       <h4 className={styles.txtDanger}>Bugs & Deficiencies</h4>
-                      <ul>
-                        {aiFeedback.bugs.map((bug, idx) => <li key={idx}>{bug}</li>)}
-                      </ul>
+                      <ul>{aiFeedback.bugs.map((bug, idx) => <li key={idx}>{bug}</li>)}</ul>
                     </div>
                   )}
-
                   <div className={styles.feedbackSection}>
                     <h4 className={styles.txtPrimary}>Recommended Improvements</h4>
-                    <ul>
-                      {aiFeedback.improvements.map((imp, idx) => <li key={idx}>{imp}</li>)}
-                    </ul>
+                    <ul>{aiFeedback.improvements.map((imp, idx) => <li key={idx}>{imp}</li>)}</ul>
                   </div>
                 </div>
               </div>
@@ -554,20 +477,15 @@ export default function WorkspacePage({ params }) {
         </div>
       </div>
 
-      {/* POST DOUBT MODAL */}
       {showDoubtModal && (
         <div className={styles.modalOverlay}>
           <div className={`${styles.modalCard} glass-card`}>
             <div className={styles.modalHeader}>
               <h3>Ask the Doubt Board</h3>
-              <button onClick={() => setShowDoubtModal(false)} className={styles.closeBtn}>
-                <X size={20} />
-              </button>
+              <button onClick={() => setShowDoubtModal(false)} className={styles.closeBtn}><X size={20} /></button>
             </div>
-            
             <form onSubmit={handlePostDoubt} className={styles.modalForm}>
               {doubtError && <div className={styles.modalError}>{doubtError}</div>}
-              
               <div className={styles.formGroup}>
                 <label>Question Summary (Title)</label>
                 <input 
@@ -578,7 +496,6 @@ export default function WorkspacePage({ params }) {
                   required
                 />
               </div>
-
               <div className={styles.formGroup}>
                 <label>Detailed Question Description</label>
                 <textarea 
@@ -589,21 +506,9 @@ export default function WorkspacePage({ params }) {
                   required
                 ></textarea>
               </div>
-
               <div className={styles.modalActions}>
-                <button 
-                  type="button" 
-                  onClick={() => setShowDoubtModal(false)} 
-                  className="btn btn-secondary"
-                  disabled={isPostingDoubt}
-                >
-                  Cancel
-                </button>
-                <button 
-                  type="submit" 
-                  className="btn btn-primary"
-                  disabled={isPostingDoubt}
-                >
+                <button type="button" onClick={() => setShowDoubtModal(false)} className="btn btn-secondary" disabled={isPostingDoubt}>Cancel</button>
+                <button type="submit" className="btn btn-primary" disabled={isPostingDoubt}>
                   {isPostingDoubt ? 'Posting Question...' : 'Post Doubt'}
                 </button>
               </div>
