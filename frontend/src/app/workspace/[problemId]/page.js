@@ -5,7 +5,7 @@ import Editor from '@monaco-editor/react';
 import { useUser } from '../../context/UserContext';
 import { 
   Play, Send, HelpCircle, AlertTriangle, 
-  CheckCircle, X, User, MessageSquareCode
+  CheckCircle, X, User, MessageSquareCode, Info
 } from 'lucide-react';
 import styles from './workspace.module.css';
 
@@ -35,6 +35,13 @@ export default function WorkspacePage({ params }) {
   const [newDoubtContent, setNewDoubtContent] = useState('');
   const [doubtError, setDoubtError] = useState('');
   const [isPostingDoubt, setIsPostingDoubt] = useState(false);
+
+  const [toast, setToast] = useState(null);
+
+  const showToast = (message, type = 'success') => {
+    setToast({ message, type });
+    setTimeout(() => setToast(null), 4000);
+  };
 
   useEffect(() => {
     async function fetchProblem() {
@@ -105,7 +112,7 @@ export default function WorkspacePage({ params }) {
 
   const handleSubmitCode = async () => {
     if (!activeUser) {
-      alert('Please select a user profile in the Navbar.');
+      showToast('Please select a user profile in the Navbar.', 'error');
       return;
     }
     
@@ -124,7 +131,6 @@ export default function WorkspacePage({ params }) {
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Submission failed');
 
-      // FIXED: Backend already parses results and aiFeedback now
       setConsoleOutput({
         type: 'submit',
         score: data.score,
@@ -171,10 +177,12 @@ export default function WorkspacePage({ params }) {
       setNewDoubtTitle('');
       setNewDoubtContent('');
       fetchProblemDoubts();
-      alert('Your doubt has been posted! An AI response has been generated and sent to the teacher queue for moderation.');
-    } catch (err) {
+      showToast('Doubt posted! AI response is pending teacher moderation.', 'success');
+    } 
+    catch (err) {
       setDoubtError(err.message);
-    } finally {
+    } 
+    finally {
       setIsPostingDoubt(false);
     }
   };
@@ -514,6 +522,13 @@ export default function WorkspacePage({ params }) {
               </div>
             </form>
           </div>
+        </div>
+      )}
+
+      {/* Toast Notification */}
+      {toast && (
+        <div className={`${styles.toast} toast-${toast.type}`}>
+          {toast.message}
         </div>
       )}
     </div>

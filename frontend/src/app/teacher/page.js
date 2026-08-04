@@ -14,6 +14,12 @@ export default function TeacherPortal() {
   // Editing state
   const [editingId, setEditingId] = useState(null);
   const [editContent, setEditContent] = useState('');
+  const [toast, setToast] = useState(null);
+
+  const showToast = (message, type = 'success') => {
+    setToast({ message, type });
+    setTimeout(() => setToast(null), 3000);
+  };
 
   useEffect(() => {
     fetchDashboardData();
@@ -44,17 +50,19 @@ export default function TeacherPortal() {
         body: JSON.stringify({
           status,
           reviewerId: activeUser.id,
-          content: content // If the teacher edited the AI draft
+          content: content 
         })
       });
 
       if (!res.ok) throw new Error('Failed to submit review');
       
-      // Remove the reviewed item from the UI
       setPendingDrafts(prev => prev.filter(draft => draft.id !== answerId));
       setEditingId(null);
-    } catch (err) {
-      alert(err.message);
+      
+      showToast(`Draft successfully ${status.toLowerCase()}.`);
+    } 
+    catch (err) {
+      showToast(err.message, 'error');
     }
   };
 
@@ -172,6 +180,13 @@ export default function TeacherPortal() {
           </div>
         </div>
       </div>
+
+      {/* Toast Notifications */}
+      {toast && (
+        <div className={`${styles.toast} toast-${toast.type}`}>
+          {toast.message}
+        </div>
+      )}
     </div>
   );
 }

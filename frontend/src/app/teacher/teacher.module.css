@@ -163,3 +163,31 @@
   justify-content: flex-end;
   gap: 12px;
 }
+
+/* =========================================
+   TOAST NOTIFICATIONS
+   ========================================= */
+.toast {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  padding: 12px 20px;
+  border-radius: var(--radius-sm);
+  font-size: 0.9rem;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  z-index: 9999;
+  animation: slideInUp 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  box-shadow: var(--shadow-md);
+  color: #ffffff;
+}
+
+.toastsuccess { background: #10b981; border: 1px solid #047857; }
+.toasterror { background: #ef4444; border: 1px solid #b91c1c; }
+
+@keyframes slideInUp {
+  from { transform: translateY(20px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
