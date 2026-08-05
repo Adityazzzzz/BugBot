@@ -12,14 +12,15 @@ let llm = null;
 if (apiKey && apiKey.trim() !== '') {
   try {
     llm = new ChatGoogleGenerativeAI({
-      modelName: "gemini-2.5-flash",
-      maxOutputTokens: 2048,
+      model: "gemini-2.5-flash",
+      apiKey: process.env.GEMINI_API_KEY,
       temperature: 0.1,
-      apiKey: apiKey,
+      maxOutputTokens: 2048,
     });
     console.log('AI Service: LangChain Gemini client initialized successfully.');
-  } catch (e) {
-    console.error('AI Service: Failed to initialize LangChain client:', e.message);
+  } 
+  catch (e) {
+    console.error(e);
   }
 } else {
   console.log('AI Service: Running in MOCK mode. Provide GEMINI_API_KEY in .env to use live Gemini API.');
