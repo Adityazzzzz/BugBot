@@ -157,8 +157,19 @@ export default function WorkspacePage({params}){
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Submission failed');
-      setConsoleOutput({ type: 'submit',score: data.score,status: data.status,results: data.results });
-      if (data.aiFeedback) setAiFeedback(data.aiFeedback);
+      
+      const parsedResults = typeof data.results === 'string' ? JSON.parse(data.results) : data.results;
+      const parsedFeedback = typeof data.aiFeedback === 'string' ? JSON.parse(data.aiFeedback) : data.aiFeedback;
+
+      setConsoleOutput({ 
+        type: 'submit',
+        score: data.score,
+        status: data.status,
+        results: parsedResults 
+      });
+      
+      if (parsedFeedback) setAiFeedback(parsedFeedback);
+      
     } catch (err){
       setConsoleOutput({ type: 'error',message: err.message });
     } finally{
