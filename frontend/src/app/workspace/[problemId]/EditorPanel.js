@@ -12,12 +12,6 @@ export default function EditorPanel({
       <div className={`${styles.editorHeader} glass-card`}>
         <div className={styles.languageSelector}>
           <button 
-            className={`${styles.langBtn} ${language === 'cpp' ? styles.langActive : ''}`}
-            onClick={() => onLanguageChange('cpp')}
-          >
-            C++
-          </button>
-          <button 
             className={`${styles.langBtn} ${language === 'javascript' ? styles.langActive : ''}`}
             onClick={() => onLanguageChange('javascript')}
           >
@@ -49,13 +43,13 @@ export default function EditorPanel({
             <span className="dot dot-green"></span>
           </div>
           <span className={styles.frameFileTitle}>
-        {problem.title.replace(/\s+/g, '_')}.{language === 'javascript' ? 'js' : language === 'python' ? 'py' : 'cpp'}
+        {problem.title.replace(/\s+/g, '_')}.{language === 'javascript' ? 'js' : 'py'}
           </span>
         </div>
         <div className={styles.editorWrapper}>
           <Editor
             height="100%"
-            language={language === 'cpp' ? 'cpp' : language}
+            language={language}
             theme="vs-dark"
             value={code}
             onChange={(val) => setCode(val || '')}

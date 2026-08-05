@@ -10,7 +10,6 @@ const JUDGE0_KEY = process.env.JUDGE0_API_KEY;
 const LANG_IDS = {
   javascript: 93,// Node.js 18.15.0
   python: 71,    // Python 3.8.1
-  cpp: 54,       // GCC 9.2.0
 };
 
 function buildExecutionPayload(code,language,functionName,testCases){
@@ -185,7 +184,6 @@ async function runLocalFallback(code,language,functionName,testCases){
     });
   });
 }
-
 
 export async function runCode(code,language,functionName,testCases){
   if(JUDGE0_KEY){

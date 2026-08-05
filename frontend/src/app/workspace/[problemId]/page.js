@@ -3,7 +3,6 @@ import React,{useEffect,useState,useRef} from 'react';
 import {useUser} from '../../context/UserContext';
 import styles from './workspace.module.css';
 
-
 import ProblemDescription from './ProblemDescription';
 import DoubtBoard from './DoubtBoard';
 import EditorPanel from './EditorPanel';
@@ -19,7 +18,7 @@ export default function WorkspacePage({params}){
 
   const [language,setLanguage] = useState('javascript');
   const [code,setCode] = useState('');
-  const codeCache = useRef({ javascript: '',python: '',cpp: '' });
+  const codeCache = useRef({ javascript: '',python: '' });
 
   const [leftTab,setLeftTab] = useState('desc'); 
   const [consoleTab,setConsoleTab] = useState('results'); 
@@ -82,10 +81,8 @@ export default function WorkspacePage({params}){
         const data = await res.json();
         setProblem(data);
 
-        const defaultCpp = data.boilerplateCpp || `#include <iostream>\n#include <vector>\nusing namespace std;\n\n// Write your solution here`;
         codeCache.current.javascript = data.boilerplateJs;
         codeCache.current.python = data.boilerplatePy;
-        codeCache.current.cpp = defaultCpp;
         setCode(data.boilerplateJs);
       } 
       catch (err){
@@ -120,7 +117,6 @@ export default function WorkspacePage({params}){
     } else{
       if (newLang === 'javascript') setCode(problem.boilerplateJs);
       else if (newLang === 'python') setCode(problem.boilerplatePy);
-      else if (newLang === 'cpp') setCode(problem.boilerplateCpp || `#include <iostream>\nusing namespace std;\n\n// Write your solution here`);
     }
   };
 

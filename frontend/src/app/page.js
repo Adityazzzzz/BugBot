@@ -156,7 +156,6 @@ export default function HomePage(){
 
                     <div className={styles.cardFooter}>
                       <div className={styles.langPills}>
-                        <span className={styles.langBadgeItem}>C++</span>
                         <span className={styles.langBadgeItem}>JS</span>
                         <span className={styles.langBadgeItem}>Py</span>
                       </div>
